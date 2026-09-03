@@ -15,7 +15,7 @@
 - `QmahTestDataWorkbench`：連線本機 QMAH、編輯受控文物／商品資料、填寫展示帳密與產生關聯展示資料。
 - `Export-ReferenceDatabase.ps1`：單一 Snapshot pipeline。
 
-流程與參數說明見 [QmahDatabaseRelease 工具說明](QmahDatabaseRelease/README.md) 與 [QmahTestDataWorkbench 工作台說明](QmahTestDataWorkbench/README.md)。完整 `QMAH.sql` 由 [QMAH-Database](https://github.com/MSIT173-03/QMAH-Database) 提供。
+流程與參數說明見 [QmahDatabaseRelease 工具說明](QmahDatabaseRelease/README.md) 與 [QmahTestDataWorkbench 工作台說明](QmahTestDataWorkbench/README.md)。完整 `QMAH.sql` 與 `.bak` 由 [QMAH-Database db-v0.7.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0) 提供。
 
 ## 兩個 WPF 工作台
 

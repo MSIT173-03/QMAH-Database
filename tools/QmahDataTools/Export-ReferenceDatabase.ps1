@@ -138,8 +138,12 @@ function Resolve-LocalDbServer([string]$Server) {
         throw "LocalDB instance '$instanceName' could not be inspected."
     }
 
-    $pipeLine = $info | Select-String -SimpleMatch 'Instance pipe name:'
-    $pipe = if ($pipeLine) { ($pipeLine.Line -split ':', 2)[1].Trim() } else { $null }
+    $pipeLine = $info | Where-Object { $_ -match 'np:' } | Select-Object -First 1
+    $pipe = if ($pipeLine) {
+        $pipeLine.Substring($pipeLine.IndexOf('np:')).Trim()
+    } else {
+        $null
+    }
     if ([string]::IsNullOrWhiteSpace($pipe)) {
         & $sqllocaldb start $instanceName | Out-Null
         if ($LASTEXITCODE -ne 0) {
@@ -147,8 +151,12 @@ function Resolve-LocalDbServer([string]$Server) {
         }
 
         $info = & $sqllocaldb info $instanceName
-        $pipeLine = $info | Select-String -SimpleMatch 'Instance pipe name:'
-        $pipe = if ($pipeLine) { ($pipeLine.Line -split ':', 2)[1].Trim() } else { $null }
+        $pipeLine = $info | Where-Object { $_ -match 'np:' } | Select-Object -First 1
+        $pipe = if ($pipeLine) {
+            $pipeLine.Substring($pipeLine.IndexOf('np:')).Trim()
+        } else {
+            $null
+        }
     }
 
     if ([string]::IsNullOrWhiteSpace($pipe)) {
@@ -196,10 +204,10 @@ function New-ValidationScript([string]$SourcePath, [string]$DestinationPath, [st
     $content = $content.Replace("CREATE DATABASE $(ConvertTo-SqlIdentifier $Database)", "CREATE DATABASE $(ConvertTo-SqlIdentifier $TargetDatabase)")
     $content = $content.Replace("ALTER DATABASE $(ConvertTo-SqlIdentifier $Database)", "ALTER DATABASE $(ConvertTo-SqlIdentifier $TargetDatabase)")
     $content = $content.Replace("USE $(ConvertTo-SqlIdentifier $Database)", "USE $(ConvertTo-SqlIdentifier $TargetDatabase)")
-    [IO.File]::WriteAllText($DestinationPath, $content, [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($DestinationPath, $content, [Text.UTF8Encoding]::new($true))
 }
 
-function Test-WebStartup([string]$ConnectionString) {
+function Test-WebStartup([string]$ConnectionString, [string]$ProjectPath) {
     $port = Get-Random -Minimum 52000 -Maximum 59000
     $url = "http://127.0.0.1:$port"
     $oldConnection = $env:ConnectionStrings__QmahDatabase
@@ -208,7 +216,7 @@ function Test-WebStartup([string]$ConnectionString) {
         $env:ConnectionStrings__QmahDatabase = $ConnectionString
         $env:ASPNETCORE_ENVIRONMENT = "Development"
         $script:webProcess = Start-Process dotnet -ArgumentList @(
-            "run", "--project", (Join-Path $repoRoot "QMAH.Web\QMAH.Web.csproj"),
+            "run", "--project", $ProjectPath,
             "--configuration", "Release", "--no-build", "--urls", $url
         ) -RedirectStandardOutput $webLog -RedirectStandardError $webErrorLog -PassThru -WindowStyle Hidden
 
@@ -325,7 +333,9 @@ DROP TABLE IF EXISTS [dbo].[sysdiagrams];
 
     Write-Host "[7/10] Rebuilding a new database from the SQL file only"
     New-ValidationScript $releaseSql $validationSql $validationDatabase
-    # 新版 sqlcmd 不再接受舊版的 -f 參數；完整 SQL 已由 exporter 以 UTF-8 無 BOM 輸出。
+    # 新版 sqlcmd 不再接受舊版的 -f 參數；驗證輸入使用 UTF-8 BOM，讓 Windows
+    # 的 sqlcmd 在繁中系統上不會把中文資料誤判成 ANSI 編碼。正式交付 SQL
+    # 仍由 exporter 以 UTF-8 無 BOM 輸出。
     & $sqlcmd -b -S $releaseServer -d master -i $validationSql
     if ($LASTEXITCODE -ne 0) {
         throw "The full SQL file could not rebuild a clean database."
@@ -340,7 +350,7 @@ DROP TABLE IF EXISTS [dbo].[sysdiagrams];
     Write-Host "[9/10] Validating QmahDbContext and optional QMAH.Web startup"
     Invoke-ReleaseTool @("validate-ef", "--connection", $validationConnection)
     if ($webProject) {
-        Test-WebStartup $validationConnection
+        Test-WebStartup $validationConnection $webProject
     } else {
         Write-Host "QMAH.Web startup validation skipped because QmahRepositoryPath was not supplied and no sibling QMAH repository was found."
     }
@@ -349,10 +359,14 @@ DROP TABLE IF EXISTS [dbo].[sysdiagrams];
     Copy-Item -LiteralPath $releaseSql -Destination $repositorySql -Force
     $backupHash = (Get-FileHash -Algorithm SHA256 $releaseBackup).Hash
     $sqlHash = (Get-FileHash -Algorithm SHA256 $releaseSql).Hash
-    @(
+    $checksumContent = @(
         "$backupHash *$(Split-Path $releaseBackup -Leaf)",
         "$sqlHash *$(Split-Path $releaseSql -Leaf)"
-    ) | Set-Content -LiteralPath $checksumFile -Encoding utf8NoBOM
+    ) -join [Environment]::NewLine
+    [IO.File]::WriteAllText(
+        $checksumFile,
+        $checksumContent + [Environment]::NewLine,
+        [Text.UTF8Encoding]::new($false))
 
     Write-Host "Release artifacts are ready:"
     Write-Host "  $releaseBackup"

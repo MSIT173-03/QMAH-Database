@@ -4,7 +4,7 @@ Windows WPF GUI，提供文物 Pipeline、商城 Collector 與安全 Importer �
 
 本工作台用於資料估算、收集、預檢與正式匯入。
 
-一般網站開發不需要開啟本工具或執行資料匯入命令。建立開發資料庫時，可在 SSMS 執行 [QMAH-Database 的完整 Snapshot](https://github.com/MSIT173-03/QMAH-Database)；若另有同版本且已驗證的 `.bak`，也可以使用。兩種方式擇一即可。
+一般網站開發不需要開啟本工具或執行資料匯入命令。建立開發資料庫時，可在 SSMS 執行 [QMAH-Database db-v0.7.0 Release 的完整 Snapshot](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0)；若另有同版本且已驗證的 `.bak`，也可以使用。兩種方式擇一即可。
 
 可直接執行的版本位於工作區根目錄 `_工具輸出/portable-tools/NpmDataWorkbench.exe`。
 
