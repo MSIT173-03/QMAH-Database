@@ -1,0 +1,375 @@
+<Window x:Class="QmahTestDataWorkbench.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="QMAH Test Data Workbench｜測試資料工作台"
+        Width="1380"
+        Height="960"
+        MinWidth="1120"
+        MinHeight="760"
+        Background="{StaticResource WindowBrush}"
+        FontFamily="Microsoft JhengHei UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Loaded="MainWindow_Loaded">
+    <Grid Margin="26,22,26,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="190" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="24,20" Background="{StaticResource NavyBrush}" CornerRadius="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="QMAH Test Data Workbench"
+                               FontSize="27"
+                               FontWeight="Bold"
+                               Foreground="White" />
+                    <TextBlock Text="測試資料工作台"
+                               Margin="0,6,0,0"
+                               FontSize="16"
+                               Foreground="#DDEAF0" />
+                    <TextBlock Text="編輯受控的文物與商品資料，或以同一個流程建立可追查的關聯展示資料。"
+                               Margin="0,12,0,0"
+                               FontSize="13"
+                               Foreground="#B9D0D9" />
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Padding="16,10"
+                        Background="#2D819A"
+                        CornerRadius="8"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="目前資料庫"
+                                   Foreground="#CDEBF0"
+                                   FontSize="11" />
+                        <TextBlock x:Name="DatabaseTargetText"
+                                   Text="搜尋中…"
+                                   Foreground="White"
+                                   FontSize="13"
+                                   FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <GroupBox Grid.Row="1" Header="連線與共用設定" Margin="0,14,0,14">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="135" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="連線字串" FontWeight="SemiBold" />
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="ConnectionBox" />
+                <Button Grid.Row="0" Grid.Column="2" x:Name="AutoDetectButton" Content="自動尋找 QMAH" Click="AutoDetectButton_Click" />
+                <Button Grid.Row="0" Grid.Column="3" x:Name="TestConnectionButton" Content="測試連線" Click="TestConnectionButton_Click" />
+                <Button Grid.Row="0" Grid.Column="4" x:Name="RefreshButton" Content="重新整理資料" Click="RefreshButton_Click" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="展示帳密檔" FontWeight="SemiBold" />
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="CredentialsBox" />
+                <Button Grid.Row="1" Grid.Column="2" Content="選擇檔案" Click="BrowseCredentialsButton_Click" />
+                <Button Grid.Row="1" Grid.Column="3" Content="範本／填寫帳密" Click="CreateCredentialsButton_Click" />
+                <Button Grid.Row="1" Grid.Column="4" Content="開啟檔案" Click="OpenCredentialsButton_Click" />
+            </Grid>
+        </GroupBox>
+
+        <TabControl Grid.Row="2" x:Name="MainTabs" Background="Transparent">
+            <TabItem Header="快速產生">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="2,12,8,12">
+                    <StackPanel>
+                        <GroupBox Header="關聯展示資料">
+                            <StackPanel>
+                                <TextBlock Text="產生器會以固定識別碼重跑同一批資料，並在單一交易中處理社群、商城、付款、每日活動與會員資產流水。執行前需有可用文物、對應商品，以及已填妥密碼的本機帳密檔。"
+                                           TextWrapping="Wrap"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Margin="0,0,0,12" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="社群貼文數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="1" x:Name="PostCountBox" Text="288" />
+                                    <TextBlock Grid.Column="2" Text="商城訂單數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="3" x:Name="OrderCountBox" Text="160" />
+                                    <TextBlock Grid.Column="4" Text="固定 seed" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="5" x:Name="SeedBox" Text="173" />
+                                </Grid>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="210" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="每日活動天數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="1" x:Name="ActivityDaysBox" Text="30" />
+                                    <TextBlock Grid.Column="2" Text="點數流水筆數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="3" x:Name="PointTransactionCountBox" Text="80" />
+                                    <TextBlock Grid.Column="4" Text="鑰匙流水筆數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="5" x:Name="KeyTransactionCountBox" Text="80" />
+                                    <TextBlock Grid.Column="6" Text="鑰匙進度流水筆數" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="7" x:Name="KeyProgressTransactionCountBox" Text="80" />
+                                </Grid>
+                                <TextBlock Text="每日活動 0–3,650 天；三種流水各可設 0–10,000 筆。成就不輸入固定數量，會依資料庫中的啟用登入成就門檻與活動歷史自動判定。"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,8,0,0" />
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button x:Name="SeedUsersButton"
+                                            Content="建立／更新展示會員"
+                                            MinWidth="170"
+                                            Click="SeedUsersButton_Click" />
+                                    <Button x:Name="GenerateDataButton"
+                                            Content="產生關聯展示資料"
+                                            MinWidth="170"
+                                            Click="GenerateDataButton_Click" />
+                                    <Button x:Name="GenerateAllButton"
+                                            Content="一鍵建立完整展示資料"
+                                            MinWidth="190"
+                                            Background="{StaticResource AccentBrush}"
+                                            Foreground="White"
+                                            Click="GenerateAllButton_Click" />
+                                    <Button x:Name="CancelButton"
+                                            Content="停止目前命令"
+                                            MinWidth="140"
+                                            IsEnabled="False"
+                                            Click="CancelButton_Click" />
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="流程邊界">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="這個頁面會寫入" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1"
+                                           Text="指定的本機 QMAH 資料庫；一鍵流程沿用 QmahDatabaseRelease 的 seed-showcase-users 與 generate-showcase-data。"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,8" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="這個頁面不會做" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1"
+                                           Text="網站啟動、Migration、Patch／Seed 套用、正式資料庫操作或任意資料表的無限制 CRUD。"
+                                           TextWrapping="Wrap" />
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="文物資料">
+                <Grid Margin="2,12,8,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <DataGrid Grid.Row="0"
+                              x:Name="ArtifactGrid"
+                              SelectionChanged="ArtifactGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ArtifactRef" Binding="{Binding ArtifactRef}" Width="150" />
+                            <DataGridTextColumn Header="名稱" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="分類" Binding="{Binding CategoryLabel}" Width="150" />
+                            <DataGridTextColumn Header="年代" Binding="{Binding EraLabel}" Width="170" />
+                            <DataGridCheckBoxColumn Header="啟用" Binding="{Binding IsActive}" Width="70" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <GroupBox Grid.Row="1" Header="新增或編輯選取文物" Margin="0,12,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="文物編號" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="ArtifactRefBox" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="名稱" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="0" Grid.Column="3" x:Name="ArtifactNameBox" />
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="狀態" FontWeight="SemiBold" />
+                            <CheckBox Grid.Row="0" Grid.Column="5" x:Name="ArtifactActiveBox" Content="啟用" IsChecked="True" VerticalAlignment="Center" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="分類" FontWeight="SemiBold" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="ArtifactCategoryBox" ItemsSource="{Binding}" DisplayMemberPath="Label" SelectedValuePath="Value" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="年代分類" FontWeight="SemiBold" />
+                            <ComboBox Grid.Row="1" Grid.Column="3" x:Name="ArtifactEraBox" ItemsSource="{Binding}" DisplayMemberPath="Label" SelectedValuePath="Value" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="原始年代" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="1" Grid.Column="5" x:Name="ArtifactEraTextBox" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="作者／創作者" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="ArtifactCreatorBox" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="尺寸" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="3" x:Name="ArtifactSizeBox" />
+                            <TextBlock Grid.Row="2" Grid.Column="4" Text="授權代碼" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="5" x:Name="ArtifactLicenseBox" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="主圖片路徑" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="ArtifactImageBox" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="縮圖路徑" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="3" Grid.Column="3" x:Name="ArtifactThumbnailBox" />
+                            <TextBlock Grid.Row="3" Grid.Column="4" Text="來源網址" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="3" Grid.Column="5" x:Name="ArtifactSourceBox" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="標示文字" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ArtifactAttributionBox" />
+                            <TextBlock Grid.Row="4" Grid.Column="4" Text="描述" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="4" Grid.Column="5" x:Name="ArtifactDescriptionBox" />
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="編輯備註" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5"
+                                       Text="ArtifactRef、名稱、分類、年代、主圖片路徑與來源網址為必要欄位；題庫與商品關聯由各自流程維護。"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource MutedBrush}" />
+                            <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="NewArtifactButton" Content="清空新增" MinWidth="110" Click="NewArtifactButton_Click" />
+                                <Button x:Name="SaveArtifactButton" Content="儲存文物" MinWidth="120" Background="{StaticResource AccentBrush}" Foreground="White" Click="SaveArtifactButton_Click" />
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="商品資料">
+                <Grid Margin="2,12,8,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <DataGrid Grid.Row="0"
+                              x:Name="ProductGrid"
+                              SelectionChanged="ProductGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ExternalRef" Binding="{Binding ExternalRef}" Width="160" />
+                            <DataGridTextColumn Header="名稱" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="關聯文物" Binding="{Binding ArtifactLabel}" Width="220" />
+                            <DataGridTextColumn Header="價格" Binding="{Binding Price}" Width="90" />
+                            <DataGridTextColumn Header="庫存" Binding="{Binding Stock}" Width="80" />
+                            <DataGridCheckBoxColumn Header="啟用" Binding="{Binding IsActive}" Width="70" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <GroupBox Grid.Row="1" Header="新增或編輯選取商品" Margin="0,12,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="商品名稱" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="ProductNameBox" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="ExternalRef" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="0" Grid.Column="3" x:Name="ProductExternalRefBox" />
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="狀態" FontWeight="SemiBold" />
+                            <CheckBox Grid.Row="0" Grid.Column="5" x:Name="ProductActiveBox" Content="啟用" IsChecked="True" VerticalAlignment="Center" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="關聯文物" FontWeight="SemiBold" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="ProductArtifactBox" ItemsSource="{Binding}" DisplayMemberPath="Label" SelectedValuePath="Value" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="商品分類代碼" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="1" Grid.Column="3" x:Name="ProductCategoryCodeBox" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="價格" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="1" Grid.Column="5" x:Name="ProductPriceBox" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="庫存" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="ProductStockBox" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="尺寸" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="3" x:Name="ProductSizeBox" />
+                            <TextBlock Grid.Row="2" Grid.Column="4" Text="主圖片路徑" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="2" Grid.Column="5" x:Name="ProductImageBox" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="來源網址" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProductSourceBox" />
+                            <TextBlock Grid.Row="3" Grid.Column="4" Text="描述" FontWeight="SemiBold" />
+                            <TextBox Grid.Row="3" Grid.Column="5" x:Name="ProductDescriptionBox" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="編輯備註" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="5"
+                                       Text="商品儲存只處理商品本身；訂單、付款、評論與其他流水資料由關聯展示資料流程產生，避免手動建立不完整關聯。"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource MutedBrush}" />
+                            <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="NewProductButton" Content="清空新增" MinWidth="110" Click="NewProductButton_Click" />
+                                <Button x:Name="SaveProductButton" Content="儲存商品" MinWidth="120" Background="{StaticResource AccentBrush}" Foreground="White" Click="SaveProductButton_Click" />
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="3"
+                Margin="0,14,0,0"
+                Background="White"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="執行記錄"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8" />
+                <TextBox x:Name="LogBox"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto"
+                         BorderThickness="0"
+                         Background="White"
+                         FontFamily="Cascadia Mono"
+                         FontSize="12" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

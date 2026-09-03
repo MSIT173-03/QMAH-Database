@@ -1,0 +1,38 @@
+{
+  "provider": "National Palace Museum Digital Collection Open API",
+  "apiRoot": "https://odapi.npm.gov.tw/data/open/api/v1/digitalCollection",
+  "schema": ["identifier", "name", "category", "size", "era", "desc", "url", "imageUrl_s", "imageUrl_m"],
+  "verification": {
+    "catalogPage": "https://digitalarchive.npm.gov.tw/opendata",
+    "openApi": "https://odapi.npm.gov.tw/data/swagger-ui/index.html?urls.primaryName=數位典藏",
+    "frequency": "monthly",
+    "license": "CC BY 4.0"
+  },
+  "midtermCatalogProfile": {
+    "categoryCount": 8,
+    "referencePerCategory": 32,
+    "referenceTotal": 256,
+    "targetPolicy": "每類目標由執行參數決定；先以 estimate-only 取得來源原始筆數，再依需要套用來源上限。",
+    "selectionModes": ["diverse", "random", "sequential"],
+    "categories": ["BRONZE", "CERAMIC", "JADE", "ENAMEL", "LACQUER", "COIN", "CARVING", "PAINTING"],
+    "questionRule": "只使用年代高信心、非跨年代且可對應單一年代桶，且主體清楚、可由圖片建立合理猜測的單筆文物。"
+  },
+  "datasets": [
+    { "code": "BRONZE", "apiName": "bronzes", "displayName": "銅器" },
+    { "code": "CERAMIC", "apiName": "ceramics", "displayName": "陶瓷" },
+    { "code": "JADE", "apiName": "jades", "displayName": "玉器" },
+    { "code": "ENAMEL", "apiName": "enamelWares", "displayName": "琺瑯器" },
+    { "code": "LACQUER", "apiName": "lacquerWares", "displayName": "漆器" },
+    { "code": "COIN", "apiName": "coins", "displayName": "錢幣" },
+    { "code": "CARVING", "apiName": "carvings", "displayName": "雕刻" },
+    { "code": "PAINTING", "apiName": "paintings", "displayName": "繪畫" },
+    { "code": "STUDIO_IMPLEMENT", "apiName": "studioImplements", "displayName": "文具" },
+    { "code": "MISCELLANEOUS", "apiName": "miscellaneousObjects", "displayName": "雜項" },
+    { "code": "TEXTILE", "apiName": "textiles", "displayName": "織品" },
+    { "code": "EMBROIDERY", "apiName": "tapestriesAndEmbroideries", "displayName": "絲繡" },
+    { "code": "CALLIGRAPHY", "apiName": "calligraphicWorks", "displayName": "法書" },
+    { "code": "CALLIGRAPHIC_MODEL", "apiName": "calligraphicModelBooks", "displayName": "法帖" },
+    { "code": "RUBBING", "apiName": "rubbings", "displayName": "拓片" },
+    { "code": "FAN", "apiName": "fans", "displayName": "成扇" }
+  ]
+}

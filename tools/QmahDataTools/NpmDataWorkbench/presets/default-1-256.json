@@ -1,0 +1,20 @@
+{
+  "name": "預設 1",
+  "description": "八類各 32 件的 256 件參考資料包設定。",
+  "artifactCounts": {
+    "BRONZE": 32,
+    "CERAMIC": 32,
+    "JADE": 32,
+    "ENAMEL": 32,
+    "LACQUER": 32,
+    "COIN": 32,
+    "CARVING": 32,
+    "PAINTING": 32
+  },
+  "selectionMode": "diverse",
+  "seed": 173,
+  "readable": "none",
+  "downloadImages": true,
+  "importArtifactPerCategory": 32,
+  "importMaxProducts": 256
+}

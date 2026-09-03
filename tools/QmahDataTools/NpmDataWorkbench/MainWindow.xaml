@@ -1,0 +1,350 @@
+<Window x:Class="NpmDataWorkbench.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NPM Data Workbench｜文物與商城資料工具"
+        Width="1280"
+        Height="900"
+        MinWidth="1100"
+        MinHeight="760"
+        Background="{StaticResource WindowBrush}"
+        FontFamily="Microsoft JhengHei UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <Grid Margin="28,24,28,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="24,20" Background="{StaticResource NavyBrush}" CornerRadius="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="NPM Data Workbench" FontSize="27" FontWeight="Bold" Foreground="White" />
+                    <TextBlock Text="文物與商城資料工具" Margin="0,6,0,0" FontSize="16" Foreground="#DDEAF0" />
+                    <TextBlock Text="先偵測可用量，再按目標少量收集；圖片只保存檔案路徑，資料表契約不變。"
+                               Margin="0,12,0,0" FontSize="13" Foreground="#B9D0D9" />
+                </StackPanel>
+                <Border Grid.Column="1" Padding="16,10" Background="#2D819A" CornerRadius="8" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="工作根目錄" Foreground="#CDEBF0" FontSize="11" />
+                        <TextBlock x:Name="RootPathText" Text="載入中…" Foreground="White" FontSize="13" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="2" x:Name="MainTabs" Background="Transparent">
+            <TabItem Header="文物資料">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="2,12,8,12">
+                    <StackPanel>
+                        <GroupBox Header="文物擷取條件">
+                            <StackPanel>
+                                <TextBlock Text="每類目標數量（0 表示略過；來源共 16 類，本期中固定採用 8 類可看圖辨識的文物）" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8" />
+                                <UniformGrid Columns="5" Rows="2" Margin="0,0,0,12">
+                                    <StackPanel Margin="0,0,12,8">
+                                        <TextBlock Text="銅器（BRONZE）" />
+                                        <TextBox x:Name="BronzeCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,8">
+                                        <TextBlock Text="陶瓷（CERAMIC）" />
+                                        <TextBox x:Name="CeramicCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,8">
+                                        <TextBlock Text="玉器（JADE）" />
+                                        <TextBox x:Name="JadeCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,8">
+                                        <TextBlock Text="琺瑯器（ENAMEL）" />
+                                        <TextBox x:Name="EnamelCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,8">
+                                        <TextBlock Text="漆器（LACQUER）" />
+                                        <TextBox x:Name="LacquerCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0">
+                                        <TextBlock Text="錢幣（COIN）" />
+                                        <TextBox x:Name="CoinsCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0">
+                                        <TextBlock Text="雕刻（CARVING）" />
+                                        <TextBox x:Name="CarvingCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,12,0">
+                                        <TextBlock Text="繪畫（PAINTING）" />
+                                        <TextBox x:Name="PaintingCountBox" Text="32" TextChanged="ArtifactCountBox_TextChanged" />
+                                    </StackPanel>
+                                </UniformGrid>
+                                <WrapPanel Margin="0,0,0,12">
+                                    <TextBlock Text="目前總目標" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="ArtifactTargetTotalText" Text="256 件" Margin="8,0,14,0" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
+                                    <TextBlock Text="256 件是目前參考資料包基準，不是來源上限；先按「偵測 API 筆數」，再可套用八類各自的原始資料筆數。" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                    <Button Content="載入預設 1" Click="LoadArtifactPresetButton_Click" ToolTip="載入版本控制中的 256 件預設；不含路徑、帳密或其他機密資料。" />
+                                    <Button Content="套用 256 件基準" Click="SetArtifactBaselineButton_Click" />
+                                    <Button Content="套用來源可用上限" Click="SetArtifactSourceLimitButton_Click" />
+                                    <TextBlock x:Name="ArtifactSourceLimitText" Text="尚未偵測來源筆數" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                </WrapPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="96" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="資料輸出資料夾" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="OutputPathBox" />
+                                    <Button Grid.Row="0" Grid.Column="2" x:Name="BrowseOutputButton" Content="選擇資料夾" Click="BrowseOutputButton_Click" />
+                                    <TextBlock Grid.Row="1" Text="圖片資料夾" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="MediaPathBox" />
+                                    <Button Grid.Row="1" Grid.Column="2" x:Name="BrowseMediaButton" Content="選擇資料夾" Click="BrowseMediaButton_Click" />
+                                    <TextBlock Grid.Row="2" Text="Pipeline 專案／執行檔" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="PipelinePathBox" />
+                                    <Button Grid.Row="2" Grid.Column="2" x:Name="BrowsePipelineButton" Content="選擇檔案" Click="BrowsePipelineButton_Click" />
+                                    <TextBlock Grid.Row="3" Text="人類可讀預覽" FontWeight="SemiBold" />
+                                    <ComboBox Grid.Row="3" Grid.Column="1" x:Name="ArtifactReadableBox" Width="190" HorizontalAlignment="Left">
+                                        <ComboBoxItem Content="不產生（預設）" Tag="none" />
+                                        <ComboBoxItem Content="CSV" Tag="csv" />
+                                        <ComboBoxItem Content="HTML" Tag="html" />
+                                        <ComboBoxItem Content="CSV + HTML" Tag="both" />
+                                    </ComboBox>
+                                    <CheckBox Grid.Row="3" Grid.Column="1" x:Name="DownloadImagesCheckBox" Content="下載圖片（只存路徑）" IsChecked="True" Margin="210,8,0,0" />
+                                    <TextBlock Grid.Row="4" Text="離線重整輸入（選填）" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="ArtifactOfflineInputBox" ToolTip="既有 artifacts.import.json 或 output 資料夾；不連線，重新套用最新年代規則。" />
+                                    <Button Grid.Row="4" Grid.Column="2" Content="選擇檔案" Click="BrowseArtifactOfflineInputButton_Click" />
+                                    <TextBlock Grid.Row="5" Text="選取模式／seed" FontWeight="SemiBold" />
+                                    <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                                        <ComboBox x:Name="ArtifactSelectionModeBox" Width="210" SelectedIndex="0">
+                                            <ComboBoxItem Content="多樣性優先（預設）" Tag="diverse" />
+                                            <ComboBoxItem Content="固定 seed 隨機" Tag="random" />
+                                            <ComboBoxItem Content="來源編號順序" Tag="sequential" />
+                                        </ComboBox>
+                                        <TextBlock Text="固定 seed" VerticalAlignment="Center" Margin="16,0,8,0" />
+                                        <TextBox x:Name="ArtifactSeedBox" Text="173" Width="110" />
+                                    </StackPanel>
+                                </Grid>
+                                <Border Margin="0,10,0,0" Padding="12,10" Background="{StaticResource AccentLightBrush}" CornerRadius="7">
+                                    <TextBlock Text="預設輸出為工具根目錄 output\current；圖片為 output\media。多樣性優先先依欄位完整度排序，再輪替年代；固定 seed 隨機可重現同一批次；來源編號順序適合觀察連續編號資料。估算只呼叫 API、只寫日誌，不建立任何 output。"
+                                               Foreground="{StaticResource NavyBrush}" TextWrapping="Wrap" />
+                                </Border>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button x:Name="EstimateArtifactButton" Content="偵測 API 筆數" MinWidth="150" Click="EstimateArtifactButton_Click" />
+                                    <Button x:Name="VerifyEraRulesButton" Content="年代規則自測" MinWidth="140" Click="VerifyEraRulesButton_Click" />
+                                    <TextBlock x:Name="ArtifactEstimateText" Text="尚未偵測" Margin="14,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="執行與檢視">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <Button x:Name="RunArtifactButton" Content="開始收集文物" MinWidth="150" Background="{StaticResource AccentBrush}" Foreground="White" Click="RunArtifactButton_Click" />
+                                    <Button x:Name="CancelButton" Content="取消目前工作" MinWidth="130" IsEnabled="False" Click="CancelButton_Click" />
+                                    <Button x:Name="OpenOutputButton" Content="開啟輸出資料夾" MinWidth="150" Click="OpenOutputButton_Click" />
+                                    <Button x:Name="OpenArtifactCsvButton" Content="開啟文物 CSV" MinWidth="135" Click="OpenArtifactCsvButton_Click" />
+                                </StackPanel>
+                                <Grid Grid.Row="1" Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ProgressBar x:Name="ProgressBar" Height="14" Minimum="0" Maximum="100" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" x:Name="StatusText" Text="尚未執行" Margin="14,0,0,0" FontWeight="SemiBold" />
+                                </Grid>
+                                <TextBlock Grid.Row="2" x:Name="ArtifactRunInfoText" Text="完成後可到執行日誌查看每個資料集的進度、失敗與輸出位置。" Margin="0,12,0,0" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="安全匯入至 QMAH 專案">
+                            <StackPanel>
+                                <TextBlock Text="先做預檢：工具只讀取資料、檢查重複與圖片，並產生一次性確認碼。只有資料齊全且輸入確認碼後，才可按確認寫入。"
+                                           TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,10" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="96" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Importer 專案／執行檔" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ImporterPathBox" />
+                                    <Button Grid.Row="0" Grid.Column="2" Content="選擇檔案" Click="BrowseImporterButton_Click" />
+                                    <TextBlock Grid.Row="1" Text="QMAH 專案根目錄" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="ProjectRootBox" ToolTip="資料夾內必須有 QMAH.Web\QMAH.Web.csproj。" />
+                                    <Button Grid.Row="1" Grid.Column="2" Content="選擇資料夾" Click="BrowseProjectRootButton_Click" />
+                                    <TextBlock Grid.Row="2" Text="文物匯入 JSON" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="ArtifactImportPathBox" />
+                                    <Button Grid.Row="2" Grid.Column="2" Content="選擇檔案" Click="BrowseArtifactImportButton_Click" />
+                                    <TextBlock Grid.Row="3" Text="商品匯入 JSON" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="3" Grid.Column="1" x:Name="ProductImportPathBox" />
+                                    <Button Grid.Row="3" Grid.Column="2" Content="選擇檔案" Click="BrowseProductImportButton_Click" />
+                                    <TextBlock Grid.Row="4" Text="確認碼" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="4" Grid.Column="1" x:Name="ImportApprovalTokenBox" ToolTip="按預檢後會自動帶入；資料內容改變就必須重新預檢。" />
+                                    <TextBlock Grid.Row="5" Text="匯入篩選上限" FontWeight="SemiBold" />
+                                    <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBox x:Name="ArtifactPerCategoryBox" Text="32" Width="120" HorizontalContentAlignment="Right" />
+                                        <TextBlock Text="每類文物；商品上限" Margin="12,0,8,0" VerticalAlignment="Center" />
+                                        <TextBox x:Name="MaxProductsBox" Text="256" Width="120" HorizontalContentAlignment="Right" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="256 件是目前參考資料包基準，不是來源抓取上限；匯入上限可設為來源實際筆數。既有 ExternalRef／ArtifactRef 只會略過，不會覆寫。" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <Button x:Name="PrecheckImportButton" Content="預檢資料與重複項目" MinWidth="170" Click="PrecheckImportButton_Click" />
+                                    <Button x:Name="ApplyImportButton" Content="確認後寫入專案" MinWidth="160" Background="{StaticResource AccentBrush}" Foreground="White" Click="ApplyImportButton_Click" />
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="商城商品">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="2,12,8,12">
+                    <StackPanel>
+                        <GroupBox Header="商品擷取條件">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="210" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="96" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Collector 專案／執行檔" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="ShopCollectorPathBox" />
+                                    <Button Grid.Row="0" Grid.Column="2" x:Name="BrowseShopCollectorButton" Content="選擇檔案" Click="BrowseShopCollectorButton_Click" />
+                                    <TextBlock Grid.Row="1" Text="商城設定檔" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="ShopSettingsPathBox" />
+                                    <Button Grid.Row="1" Grid.Column="2" x:Name="BrowseShopSettingsButton" Content="選擇檔案" Click="BrowseShopSettingsButton_Click" />
+                                    <TextBlock Grid.Row="2" Text="商城商品分類 JSON" FontWeight="SemiBold" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="SourceCatalogPathBox" />
+                                    <Button Grid.Row="2" Grid.Column="2" x:Name="BrowseSourceCatalogButton" Content="選擇檔案" Click="BrowseSourceCatalogButton_Click" />
+                                </Grid>
+                                 <TextBlock Text="商城商品分類（可複選；每項顯示目前觀察到的商品連結量）" Margin="0,14,0,6" FontWeight="SemiBold" />
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="#FBFCFD" CornerRadius="6" Padding="8">
+                                    <ScrollViewer Height="166" VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl x:Name="ShopCategoriesList">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="2" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="5,5,18,5" FontSize="14">
+                                                         <TextBlock Text="{Binding Display}" TextWrapping="Wrap" />
+                                                    </CheckBox>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                 </Border>
+                                 <TextBlock Text="抓取節奏（可手動調整；0 頁數代表持續翻到來源沒有新商品）" Margin="0,12,0,5" FontWeight="SemiBold" />
+                                 <Grid>
+                                     <Grid.ColumnDefinitions>
+                                         <ColumnDefinition Width="Auto" />
+                                         <ColumnDefinition Width="82" />
+                                         <ColumnDefinition Width="Auto" />
+                                         <ColumnDefinition Width="82" />
+                                         <ColumnDefinition Width="Auto" />
+                                         <ColumnDefinition Width="82" />
+                                         <ColumnDefinition Width="Auto" />
+                                         <ColumnDefinition Width="82" />
+                                     </Grid.ColumnDefinitions>
+                                     <TextBlock Grid.Column="0" Text="每次請求延遲(ms)" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                     <TextBox Grid.Column="1" x:Name="ShopDelayBox" Text="600" HorizontalContentAlignment="Right" />
+                                     <TextBlock Grid.Column="2" Text="每幾次冷卻" VerticalAlignment="Center" Margin="18,0,8,0" />
+                                     <TextBox Grid.Column="3" x:Name="ShopCooldownEveryBox" Text="30" HorizontalContentAlignment="Right" />
+                                     <TextBlock Grid.Column="4" Text="冷卻(ms)" VerticalAlignment="Center" Margin="18,0,8,0" />
+                                     <TextBox Grid.Column="5" x:Name="ShopCooldownMsBox" Text="10000" HorizontalContentAlignment="Right" />
+                                     <TextBlock Grid.Column="6" Text="最大頁數(0=不限)" VerticalAlignment="Center" Margin="18,0,8,0" />
+                                     <TextBox Grid.Column="7" x:Name="ShopMaxPagesBox" Text="3" HorizontalContentAlignment="Right" />
+                                 </Grid>
+                                 <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="目標商品數" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                    <TextBox Grid.Column="1" x:Name="ShopCountBox" Text="48" HorizontalContentAlignment="Right" />
+                                    <TextBlock Grid.Column="2" Text="人類可讀預覽" FontWeight="SemiBold" Margin="20,0,10,0" />
+                                    <ComboBox Grid.Column="3" x:Name="ShopReadableBox" Width="180" HorizontalAlignment="Left">
+                                        <ComboBoxItem Content="不產生（預設）" Tag="none" />
+                                        <ComboBoxItem Content="CSV" Tag="csv" />
+                                        <ComboBoxItem Content="HTML" Tag="html" />
+                                        <ComboBoxItem Content="CSV + HTML" Tag="both" />
+                                    </ComboBox>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                     <Button x:Name="RefreshCatalogButton" Content="更新商城商品分類 JSON" MinWidth="205" Click="RefreshCatalogButton_Click" />
+                                    <Button x:Name="EstimateShopButton" Content="偵測所選分類商品量" MinWidth="175" Click="EstimateShopButton_Click" />
+                                    <Button x:Name="RunShopButton" Content="開始收集商城商品" MinWidth="175" Background="{StaticResource AccentBrush}" Foreground="White" Click="RunShopButton_Click" />
+                                    <TextBlock x:Name="ShopEstimateText" Text="尚未偵測" Margin="14,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" />
+                                </StackPanel>
+                                 <TextBlock x:Name="CatalogStatusText" Text="商城商品分類 JSON 尚未建立；可更新目前網站分類快照。" Margin="0,8,0,0" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+                                 <Border Margin="0,10,0,0" Padding="12,10" Background="{StaticResource AccentLightBrush}" CornerRadius="7">
+                                     <TextBlock Text="輸出為工具根目錄 output\products；圖片為 output\media。會遵守 robots.txt、共用節流、有限並行與退避重試；達到目標、來源耗盡或品質規則阻擋時停止。最大頁數設為 0 可持續翻頁，仍可手動設定請求延遲與每幾次冷卻。"
+                                               Foreground="{StaticResource NavyBrush}" TextWrapping="Wrap" />
+                                </Border>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="執行日誌">
+                <Grid Margin="2,12,8,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="ClearLogButton" Content="清除日誌" MinWidth="105" Click="ClearLogButton_Click" />
+                        <Button Grid.Column="1" x:Name="CopyLogButton" Content="複製日誌" MinWidth="105" Click="CopyLogButton_Click" />
+                        <TextBlock Grid.Column="3" Text="紅色：錯誤／警告　藍色：進度　紫色：偵測　綠色：完成" Foreground="{StaticResource MutedBrush}" />
+                    </Grid>
+                    <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <RichTextBox x:Name="LogBox" IsReadOnly="True" BorderThickness="0" Background="White" FontFamily="Cascadia Mono" FontSize="12.5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.vs/
+output/
+*.user
+*.suo
+*.log
+*.tmp
+*.exe
+.env
+appsettings.Local.json

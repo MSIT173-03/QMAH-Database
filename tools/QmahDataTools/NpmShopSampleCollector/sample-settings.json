@@ -1,0 +1,230 @@
+{
+  "sourceRoot": "https://panel.npmshops.com/mainssl/modules/MySpace",
+  "outputDirectory": "products",
+  "mediaRoot": "media",
+  "mediaUrlPrefix": "/media",
+  "targetTotal": 48,
+  "defaultCategoryMinimum": 1,
+  "defaultCategoryMaximum": 6,
+  "autoExpandCategoryMaximum": true,
+  "autoDiscoverCategories": true,
+  "autoDiscoverMaxEntries": 24,
+  "categories": [
+    {
+      "code": "COLLECTION_DERIVATIVE",
+      "name": "典藏衍生",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["典藏", "國寶", "選粹"]
+    },
+    {
+      "code": "STATIONERY",
+      "name": "文具",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["文具", "文房", "筆", "書寫"]
+    },
+    {
+      "code": "HOME_DECOR",
+      "name": "家飾",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["家飾", "擺設", "居家", "多寶格"]
+    },
+    {
+      "code": "TABLEWARE",
+      "name": "餐瓷／茶器",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["陶瓷", "餐瓷", "茶器", "茶具", "杯", "碗"]
+    },
+    {
+      "code": "APPAREL_ACCESSORIES",
+      "name": "服飾配件",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["服飾", "配件", "絲巾", "領帶", "包"]
+    },
+    {
+      "code": "TOYS_PUZZLES",
+      "name": "玩具／拼圖",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["玩具", "拼圖", "積木"]
+    },
+    {
+      "code": "PAINTING_REPRODUCTION",
+      "name": "書畫複製",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["書法", "繪畫", "畫作", "畫心", "手卷"]
+    },
+    {
+      "code": "OTHER_CULTURAL_DERIVATIVE",
+      "name": "其他文物衍生",
+      "minimum": 1,
+      "maximum": 16,
+      "enabled": true,
+      "keywords": ["翠玉", "玉器", "肉形石", "毛公鼎", "珍玩", "文物"]
+    }
+  ],
+  "sourceEntries": [
+    {
+      "code": "ZC523",
+      "name": "典藏精品",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC523&pn={page}",
+      "categoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC7286630",
+      "name": "國寶特選",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7286630&pn={page}",
+      "categoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC7263806",
+      "name": "故宮選粹",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7263806&pn={page}",
+      "categoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC1254365",
+      "name": "清明上河圖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC1254365&pn={page}",
+      "categoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true
+    },
+    {
+      "code": "ZC2154442",
+      "name": "富春山居圖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154442&pn={page}",
+      "categoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true
+    },
+    {
+      "code": "ZC7374126",
+      "name": "快雪時晴帖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7374126&pn={page}",
+      "categoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true
+    },
+    {
+      "code": "ZC508",
+      "name": "書法繪畫",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC508&pn={page}",
+      "categoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true
+    },
+    {
+      "code": "ZC2154202",
+      "name": "多寶格系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154202&pn={page}",
+      "categoryCode": "HOME_DECOR",
+      "enabled": true
+    },
+    {
+      "code": "ZC524",
+      "name": "陶瓷",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC524&pn={page}",
+      "categoryCode": "TABLEWARE",
+      "enabled": true
+    },
+    {
+      "code": "ZC535",
+      "name": "文房四寶與書法",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC535&pn={page}",
+      "categoryCode": "STATIONERY",
+      "enabled": true
+    },
+    {
+      "code": "ZC4246159",
+      "name": "翠玉白菜系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC4246159&pn={page}",
+      "categoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC2154336",
+      "name": "肉形石系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154336&pn={page}",
+      "categoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC2154387",
+      "name": "毛公鼎系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154387&pn={page}",
+      "categoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC2155875",
+      "name": "玉辟邪系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2155875&pn={page}",
+      "categoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC545",
+      "name": "珍玩",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC545&pn={page}",
+      "categoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true
+    },
+    {
+      "code": "ZC519",
+      "name": "展覽圖錄",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC519&pn={page}",
+      "categoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true
+    }
+  ],
+  "allowedCategories": [],
+  "allowedKeywords": [],
+  "excludeTerms": [
+    "期刊",
+    "月刊",
+    "季刊",
+    "年刊",
+    "雜誌",
+    "特刊",
+    "訂閱",
+    "電子報",
+    "journal",
+    "magazine",
+    "monthly",
+    "quarterly",
+    "subscription"
+  ],
+  "throttleMilliseconds": 600,
+  "jitterMilliseconds": 200,
+  "cooldownEveryRequests": 30,
+  "cooldownMilliseconds": 10000,
+  "maxConcurrentRequests": 3,
+  "maxRetries": 3,
+  "retryBaseDelayMilliseconds": 500,
+  "requestTimeoutSeconds": 45,
+  "imageRequired": true,
+  "missingImagePolicy": "exclude",
+  "maxPages": 3,
+  "demoStock": 10,
+  "sourceProvider": "NPM_SHOP_PUBLIC_PAGE",
+  "respectRobotsTxt": true,
+  "robotsUrl": null,
+  "sqlSchema": "store",
+  "readableFormat": "none",
+  "sourceNote": "僅讀取來源公開分類頁與商品頁的名稱、摘要、價格、圖片網址與商品連結；不宣稱為官方資料集。",
+  "robotsNote": "執行前請確認來源 robots.txt 與網站條款；本工具不繞過 robots.txt，分類頁採有上限並行、共用節流與退避重試。",
+  "inventoryNote": "stock 是清明鑑定屋 Demo 的可售庫存，不代表官方商城即時庫存。",
+  "nonAffiliation": "本資料包為學生專題內部展示資料，非國立故宮博物院或故宮精品網路商城官方製作。"
+}

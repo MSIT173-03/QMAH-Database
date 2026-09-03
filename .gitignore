@@ -1,0 +1,25 @@
+# .NET build output and IDE state
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+
+# Local database files and backup output
+*.bak
+*.mdf
+*.ndf
+*.ldf
+
+# Generated tool output and local-only data
+_工具輸出/
+工具輸出/
+artifacts/
+output/
+temp/
+.tmp/
+*.local.json
+*.local.csv
+*.local.backup.csv
+*.secrets.json
+.codex-tmp/

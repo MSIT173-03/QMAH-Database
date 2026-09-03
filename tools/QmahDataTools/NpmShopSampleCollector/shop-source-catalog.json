@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 1,
+  "catalogType": "heuristic-observation",
+  "observedAtUtc": "2026-08-02T19:59:05.2547337+00:00",
+  "sourceRoot": "https://panel.npmshops.com/mainssl/modules/MySpace",
+  "confidence": "heuristic",
+  "warning": "這是少量頁面的觀察與推測，不代表官方分類 API；正式收集前請人工檢查，再決定是否加入 sample-settings.json。",
+  "discoveryPolicy": {
+    "maxConfiguredEntries": 24,
+    "pagesPerEntry": 1,
+    "productDetailsFetched": false,
+    "imagesDownloaded": false,
+    "outputWritten": false,
+    "robotsTxtRespected": true
+  },
+  "listingStructure": {
+    "categoryPagePattern": "PrdList.php?sn=shop&cn={category}&pn={page}",
+    "categoryParameter": "cn",
+    "pageParameter": "pn",
+    "categoryLinkSelector": "a/span[href*='PrdList.php']",
+    "productLinkSelector": "a/span[href*='PrdInfo.php']",
+    "productReferenceParameter": "prd",
+    "paginationObserved": true,
+    "productLinksObserved": true,
+    "imageTagsObserved": true,
+    "evidencePageCount": 16
+  },
+  "categories": [
+    {
+      "code": "ZC1254365",
+      "name": "清明上河圖 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC1254365&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "observedProductLinks": 31,
+      "evidenceSource": "ZC1254365",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC2154202",
+      "name": "多寶格 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154202&pn={page}",
+      "mappedCategoryCode": "HOME_DECOR",
+      "observedProductLinks": 50,
+      "evidenceSource": "ZC2154202",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC2154336",
+      "name": "肉形石 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154336&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "observedProductLinks": 25,
+      "evidenceSource": "ZC2154336",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC2154387",
+      "name": "毛公鼎 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154387&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "observedProductLinks": 12,
+      "evidenceSource": "ZC2154387",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC2154442",
+      "name": "富春山居圖 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154442&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "observedProductLinks": 28,
+      "evidenceSource": "ZC2154442",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC2155875",
+      "name": "玉辟邪 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2155875&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "observedProductLinks": 12,
+      "evidenceSource": "ZC2155875",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC4246159",
+      "name": "翠玉白菜 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC4246159&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "observedProductLinks": 70,
+      "evidenceSource": "ZC4246159",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC499",
+      "name": "熱銷精選",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC499&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 70,
+      "evidenceSource": "ZC7286630,ZC1254365,ZC2154442,ZC7374126,ZC2154202,ZC4246159,ZC2154336,ZC2154387,ZC2155875",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC508",
+      "name": "書法繪畫",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC508&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "observedProductLinks": 72,
+      "evidenceSource": "ZC508",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC515",
+      "name": "圖書影音",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC515&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 72,
+      "evidenceSource": "ZC7263806,ZC519",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC519",
+      "name": "展覽圖錄",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC519&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 72,
+      "evidenceSource": "ZC519",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC523",
+      "name": "典藏精品",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC523&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 71,
+      "evidenceSource": "ZC523,ZC524,ZC545",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC524",
+      "name": "陶瓷",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC524&pn={page}",
+      "mappedCategoryCode": "TABLEWARE",
+      "observedProductLinks": 28,
+      "evidenceSource": "ZC524",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC534",
+      "name": "設計文具",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC534&pn={page}",
+      "mappedCategoryCode": "STATIONERY",
+      "observedProductLinks": 49,
+      "evidenceSource": "ZC535",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC535",
+      "name": "文房四寶/書法",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC535&pn={page}",
+      "mappedCategoryCode": "STATIONERY",
+      "observedProductLinks": 49,
+      "evidenceSource": "ZC535",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC545",
+      "name": "珍玩",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC545&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "observedProductLinks": 29,
+      "evidenceSource": "ZC545",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC7263806",
+      "name": "故宮選粹",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7263806&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 34,
+      "evidenceSource": "ZC7263806",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC7286630",
+      "name": "國寶特選",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7286630&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "observedProductLinks": 70,
+      "evidenceSource": "ZC7286630,ZC1254365,ZC2154442,ZC7374126,ZC2154202,ZC4246159,ZC2154336,ZC2154387,ZC2155875",
+      "confidence": "observed"
+    },
+    {
+      "code": "ZC7374126",
+      "name": "快雪時晴帖 系列",
+      "urlTemplate": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7374126&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "observedProductLinks": 24,
+      "evidenceSource": "ZC7374126",
+      "confidence": "observed"
+    }
+  ],
+  "configuredSourceEntries": [
+    {
+      "code": "ZC523",
+      "name": "典藏精品",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC523&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC7286630",
+      "name": "國寶特選",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7286630&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC7263806",
+      "name": "故宮選粹",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7263806&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC1254365",
+      "name": "清明上河圖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC1254365&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC2154442",
+      "name": "富春山居圖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154442&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC7374126",
+      "name": "快雪時晴帖系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7374126&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC508",
+      "name": "書法繪畫",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC508&pn={page}",
+      "mappedCategoryCode": "PAINTING_REPRODUCTION",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC2154202",
+      "name": "多寶格系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154202&pn={page}",
+      "mappedCategoryCode": "HOME_DECOR",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC524",
+      "name": "陶瓷",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC524&pn={page}",
+      "mappedCategoryCode": "TABLEWARE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC535",
+      "name": "文房四寶與書法",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC535&pn={page}",
+      "mappedCategoryCode": "STATIONERY",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC4246159",
+      "name": "翠玉白菜系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC4246159&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC2154336",
+      "name": "肉形石系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154336&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC2154387",
+      "name": "毛公鼎系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154387&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC2155875",
+      "name": "玉辟邪系列",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2155875&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC545",
+      "name": "珍玩",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC545&pn={page}",
+      "mappedCategoryCode": "OTHER_CULTURAL_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    },
+    {
+      "code": "ZC519",
+      "name": "展覽圖錄",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC519&pn={page}",
+      "mappedCategoryCode": "COLLECTION_DERIVATIVE",
+      "enabled": true,
+      "observed": true
+    }
+  ],
+  "evidencePages": [
+    {
+      "sourceCode": "ZC523",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC523&pn=1",
+      "htmlLength": 919627,
+      "categoryLinkCount": 1,
+      "productLinkCount": 71,
+      "paginationObserved": true,
+      "imageTagCount": 282
+    },
+    {
+      "sourceCode": "ZC7286630",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7286630&pn=1",
+      "htmlLength": 930539,
+      "categoryLinkCount": 2,
+      "productLinkCount": 70,
+      "paginationObserved": true,
+      "imageTagCount": 276
+    },
+    {
+      "sourceCode": "ZC7263806",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7263806&pn=1",
+      "htmlLength": 804852,
+      "categoryLinkCount": 2,
+      "productLinkCount": 34,
+      "paginationObserved": true,
+      "imageTagCount": 166
+    },
+    {
+      "sourceCode": "ZC1254365",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC1254365&pn=1",
+      "htmlLength": 789010,
+      "categoryLinkCount": 3,
+      "productLinkCount": 31,
+      "paginationObserved": true,
+      "imageTagCount": 148
+    },
+    {
+      "sourceCode": "ZC2154442",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154442&pn=1",
+      "htmlLength": 778297,
+      "categoryLinkCount": 3,
+      "productLinkCount": 28,
+      "paginationObserved": true,
+      "imageTagCount": 138
+    },
+    {
+      "sourceCode": "ZC7374126",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC7374126&pn=1",
+      "htmlLength": 763151,
+      "categoryLinkCount": 3,
+      "productLinkCount": 24,
+      "paginationObserved": true,
+      "imageTagCount": 127
+    },
+    {
+      "sourceCode": "ZC508",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC508&pn=1",
+      "htmlLength": 931998,
+      "categoryLinkCount": 1,
+      "productLinkCount": 72,
+      "paginationObserved": true,
+      "imageTagCount": 335
+    },
+    {
+      "sourceCode": "ZC2154202",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154202&pn=1",
+      "htmlLength": 854284,
+      "categoryLinkCount": 3,
+      "productLinkCount": 50,
+      "paginationObserved": true,
+      "imageTagCount": 208
+    },
+    {
+      "sourceCode": "ZC524",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC524&pn=1",
+      "htmlLength": 778438,
+      "categoryLinkCount": 2,
+      "productLinkCount": 28,
+      "paginationObserved": true,
+      "imageTagCount": 138
+    },
+    {
+      "sourceCode": "ZC535",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC535&pn=1",
+      "htmlLength": 834437,
+      "categoryLinkCount": 2,
+      "productLinkCount": 49,
+      "paginationObserved": true,
+      "imageTagCount": 201
+    },
+    {
+      "sourceCode": "ZC4246159",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC4246159&pn=1",
+      "htmlLength": 923726,
+      "categoryLinkCount": 3,
+      "productLinkCount": 70,
+      "paginationObserved": true,
+      "imageTagCount": 271
+    },
+    {
+      "sourceCode": "ZC2154336",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154336&pn=1",
+      "htmlLength": 770734,
+      "categoryLinkCount": 3,
+      "productLinkCount": 25,
+      "paginationObserved": true,
+      "imageTagCount": 131
+    },
+    {
+      "sourceCode": "ZC2154387",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2154387&pn=1",
+      "htmlLength": 724466,
+      "categoryLinkCount": 3,
+      "productLinkCount": 12,
+      "paginationObserved": true,
+      "imageTagCount": 91
+    },
+    {
+      "sourceCode": "ZC2155875",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC2155875&pn=1",
+      "htmlLength": 719389,
+      "categoryLinkCount": 3,
+      "productLinkCount": 12,
+      "paginationObserved": true,
+      "imageTagCount": 90
+    },
+    {
+      "sourceCode": "ZC545",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC545&pn=1",
+      "htmlLength": 775881,
+      "categoryLinkCount": 2,
+      "productLinkCount": 29,
+      "paginationObserved": true,
+      "imageTagCount": 153
+    },
+    {
+      "sourceCode": "ZC519",
+      "url": "https://panel.npmshops.com/mainssl/modules/MySpace/PrdList.php?sn=shop&cn=ZC519&pn=1",
+      "htmlLength": 960686,
+      "categoryLinkCount": 2,
+      "productLinkCount": 72,
+      "paginationObserved": true,
+      "imageTagCount": 291
+    }
+  ],
+  "warnings": [
+    "FETCH_FAILED:ROOT:HTTP 301 (Moved Permanently)"
+  ]
+}
