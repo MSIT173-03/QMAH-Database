@@ -6,7 +6,7 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.7.0 第一個正式 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0)。Release 提供與 `db-v0.7.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.7.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.8.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.8.0)。Release 提供與 `db-v0.8.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.8.0.bak`、`0.7.0-to-0.8.0.sql` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
 ## Repository 內容
 
@@ -227,4 +227,4 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
-目前 Repository 版本入口為 [db-v0.7.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0)。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+目前 Repository 版本入口為 [db-v0.8.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.8.0)。既有 `db-v0.7.0` 可執行 [`database/upgrades/0.7.0-to-0.8.0.sql`](database/upgrades/0.7.0-to-0.8.0.sql) 保留資料升級。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。

@@ -19,6 +19,8 @@ public partial class KeyTransaction
 
     public Guid? ReferenceId { get; set; }
 
+    public Guid? CreatedByAdminUserId { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<ArtifactUnlock> ArtifactUnlocks { get; set; } = new List<ArtifactUnlock>();

@@ -38,6 +38,8 @@ public partial class GamePlayer
 public partial class KeyTransaction
 {
     public virtual ApplicationUser User { get; set; } = null!;
+
+    public virtual ApplicationUser? CreatedByAdminUser { get; set; }
 }
 
 public partial class OfficialAnnouncement
@@ -53,6 +55,8 @@ public partial class PointBalance
 public partial class PointTransaction
 {
     public virtual ApplicationUser User { get; set; } = null!;
+
+    public virtual ApplicationUser? CreatedByAdminUser { get; set; }
 }
 
 public partial class SocialComment

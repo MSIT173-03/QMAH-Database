@@ -17,5 +17,7 @@ public partial class PointTransaction
 
     public Guid? ReferenceId { get; set; }
 
+    public Guid? CreatedByAdminUserId { get; set; }
+
     public DateTime CreatedAt { get; set; }
 }

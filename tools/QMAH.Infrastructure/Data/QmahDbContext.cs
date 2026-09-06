@@ -865,6 +865,7 @@ public partial class QmahDbContext
             entity.ToTable("KeyTransactions", "catalog");
 
             entity.HasIndex(e => new { e.UserId, e.CreatedAt }, "IX_KeyTransactions_User").IsDescending(false, true);
+            entity.HasIndex(e => new { e.CreatedByAdminUserId, e.CreatedAt }, "IX_KeyTransactions_AdminUser").IsDescending(false, true);
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
@@ -882,6 +883,11 @@ public partial class QmahDbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_KeyTransactions_User");
+
+            entity.HasOne(d => d.CreatedByAdminUser).WithMany(p => p.CreatedKeyTransactions)
+                .HasForeignKey(d => d.CreatedByAdminUserId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_KeyTransactions_AdminUser");
         });
 
         modelBuilder.Entity<KeyProgressBalance>(entity =>
@@ -1015,6 +1021,7 @@ public partial class QmahDbContext
             entity.ToTable("PointTransactions", "store");
 
             entity.HasIndex(e => new { e.UserId, e.CreatedAt }, "IX_PointTransactions_Member").IsDescending(false, true);
+            entity.HasIndex(e => new { e.CreatedByAdminUserId, e.CreatedAt }, "IX_PointTransactions_AdminUser").IsDescending(false, true);
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
@@ -1027,6 +1034,11 @@ public partial class QmahDbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_PointTransactions_User");
+
+            entity.HasOne(d => d.CreatedByAdminUser).WithMany(p => p.CreatedPointTransactions)
+                .HasForeignKey(d => d.CreatedByAdminUserId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_PointTransactions_AdminUser");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -1357,6 +1369,8 @@ public partial class QmahDbContext
 
             entity.HasIndex(e => new { e.UserId, e.Status, e.ExpiresAt }, "IX_UserCoupons_User_Status_ExpiresAt");
             entity.HasIndex(e => new { e.CouponDefinitionId, e.IssuedAt }, "IX_UserCoupons_Definition_IssuedAt").IsDescending(false, true);
+            entity.HasIndex(e => new { e.IssuedByAdminUserId, e.IssuedAt }, "IX_UserCoupons_IssuedByAdmin").IsDescending(false, true);
+            entity.HasIndex(e => new { e.RevokedByAdminUserId, e.RevokedAt }, "IX_UserCoupons_RevokedByAdmin").IsDescending(false, true);
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.IssuedAt)

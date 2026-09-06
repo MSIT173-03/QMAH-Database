@@ -283,6 +283,7 @@ BEGIN TRANSACTION;
         [Reason] nvarchar(40) NOT NULL,
         [ReferenceType] nvarchar(40) NULL,
         [ReferenceId] uniqueidentifier NULL,
+        [CreatedByAdminUserId] uniqueidentifier NULL,
         [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_PointTransactions_Created] DEFAULT ((sysutcdatetime())),
         CONSTRAINT [PK_PointTransactions] PRIMARY KEY ([Id]),
         CONSTRAINT [CK_PointTransactions_Amount] CHECK (([Amount]<>(0)))
@@ -1023,6 +1024,9 @@ BEGIN TRANSACTION;
     ALTER TABLE [catalog].[KeyTransactions] ADD CONSTRAINT [FK_KeyTransactions_User]
         FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id]);
 
+    ALTER TABLE [catalog].[KeyTransactions] ADD CONSTRAINT [FK_KeyTransactions_AdminUser]
+        FOREIGN KEY ([CreatedByAdminUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
+
     ALTER TABLE [catalog].[UserKeyBalances] ADD CONSTRAINT [FK_UserKeyBalances_User]
         FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id]);
 
@@ -1070,6 +1074,9 @@ BEGIN TRANSACTION;
 
     ALTER TABLE [store].[PointTransactions] ADD CONSTRAINT [FK_PointTransactions_User]
         FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id]);
+
+    ALTER TABLE [store].[PointTransactions] ADD CONSTRAINT [FK_PointTransactions_AdminUser]
+        FOREIGN KEY ([CreatedByAdminUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
 
     ALTER TABLE [store].[StoreOrders] ADD CONSTRAINT [FK_StoreOrders_User]
         FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id]);
@@ -1187,6 +1194,8 @@ BEGIN TRANSACTION;
 
     CREATE INDEX [IX_KeyTransactions_User] ON [catalog].[KeyTransactions] ([UserId], [CreatedAt] DESC);
 
+    CREATE INDEX [IX_KeyTransactions_AdminUser] ON [catalog].[KeyTransactions] ([CreatedByAdminUserId], [CreatedAt] DESC);
+
     CREATE INDEX [IX_OfficialAnnouncements_CreatedByUserId] ON [social].[OfficialAnnouncements] ([CreatedByUserId]);
 
     CREATE UNIQUE INDEX [UQ_SocialPosts_EventId] ON [social].[SocialPosts] ([EventId]) WHERE [EventId] IS NOT NULL;
@@ -1200,6 +1209,8 @@ BEGIN TRANSACTION;
     CREATE UNIQUE INDEX [UQ_Payments_Order] ON [store].[Payments] ([OrderId]);
 
     CREATE INDEX [IX_PointTransactions_Member] ON [store].[PointTransactions] ([UserId], [CreatedAt] DESC);
+
+    CREATE INDEX [IX_PointTransactions_AdminUser] ON [store].[PointTransactions] ([CreatedByAdminUserId], [CreatedAt] DESC);
 
     CREATE INDEX [IX_ProductReviews_Product_Status_Created] ON [store].[ProductReviews] ([ProductId], [Status], [CreatedAt] DESC);
 
@@ -1248,6 +1259,12 @@ BEGIN TRANSACTION;
 
     CREATE INDEX [IX_UserCoupons_Definition_IssuedAt]
         ON [store].[UserCoupons] ([CouponDefinitionId], [IssuedAt] DESC);
+
+    CREATE INDEX [IX_UserCoupons_IssuedByAdmin]
+        ON [store].[UserCoupons] ([IssuedByAdminUserId], [IssuedAt] DESC);
+
+    CREATE INDEX [IX_UserCoupons_RevokedByAdmin]
+        ON [store].[UserCoupons] ([RevokedByAdminUserId], [RevokedAt] DESC);
 
     CREATE INDEX [IX_UserKeyBalances_KeyDefinitionId] ON [catalog].[UserKeyBalances] ([KeyDefinitionId]);
 
