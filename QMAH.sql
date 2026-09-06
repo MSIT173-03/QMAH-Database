@@ -353,6 +353,7 @@ CREATE TABLE [catalog].[KeyProgressTransactions](
 	[Reason] [nvarchar](40) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[ReferenceType] [nvarchar](40) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[ReferenceId] [uniqueidentifier] NULL,
+	[CreatedByAdminUserId] [uniqueidentifier] NULL,
 	[CreatedAt] [datetime2](3) NOT NULL,
  CONSTRAINT [PK_KeyProgressTransactions] PRIMARY KEY CLUSTERED
 (
@@ -5468,6 +5469,12 @@ CREATE NONCLUSTERED INDEX [IX_KeyTransactions_KeyDefinitionId] ON [catalog].[Key
 	[KeyDefinitionId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
 GO
+CREATE NONCLUSTERED INDEX [IX_KeyTransactions_AdminUser] ON [catalog].[KeyTransactions]
+(
+	[CreatedByAdminUserId] ASC,
+	[CreatedAt] DESC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF)
+GO
 CREATE NONCLUSTERED INDEX [IX_KeyTransactions_User] ON [catalog].[KeyTransactions]
 (
 	[UserId] ASC,
@@ -6115,6 +6122,11 @@ ALTER TABLE [catalog].[KeyTransactions]  WITH CHECK ADD  CONSTRAINT [FK_KeyTrans
 REFERENCES [user].[AspNetUsers] ([Id])
 GO
 ALTER TABLE [catalog].[KeyTransactions] CHECK CONSTRAINT [FK_KeyTransactions_User]
+GO
+ALTER TABLE [catalog].[KeyTransactions]  WITH CHECK ADD  CONSTRAINT [FK_KeyTransactions_AdminUser] FOREIGN KEY([CreatedByAdminUserId])
+REFERENCES [user].[AspNetUsers] ([Id])
+GO
+ALTER TABLE [catalog].[KeyTransactions] CHECK CONSTRAINT [FK_KeyTransactions_AdminUser]
 GO
 ALTER TABLE [catalog].[UserKeyBalances]  WITH CHECK ADD  CONSTRAINT [FK_UserKeyBalances_Key] FOREIGN KEY([KeyDefinitionId])
 REFERENCES [catalog].[KeyDefinitions] ([Id])
