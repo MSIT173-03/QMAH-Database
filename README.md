@@ -6,7 +6,7 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.8.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.8.0)。Release 提供與 `db-v0.8.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.8.0.bak`、`0.7.0-to-0.8.0.sql` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.9.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.0)。Release 提供與 `db-v0.9.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.9.0.bak`、`0.8.0-to-0.9.0.sql` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
 ## Repository 內容
 
