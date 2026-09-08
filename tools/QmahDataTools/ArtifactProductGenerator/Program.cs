@@ -56,8 +56,16 @@ try
     }
 
     var selected = SelectBalanced(artifacts, options.Count, options.Seed);
+    var repeatedArtifactNames = selected
+        .GroupBy(artifact => artifact.Name.Trim(), StringComparer.OrdinalIgnoreCase)
+        .Where(group => group.Count() > 1)
+        .Select(group => group.Key)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
     var products = selected
-        .Select(artifact => CreateProduct(artifact, options))
+        .Select(artifact => CreateProduct(
+            artifact,
+            options,
+            repeatedArtifactNames.Contains(artifact.Name.Trim())))
         .OrderBy(product => product.CategoryCode, StringComparer.Ordinal)
         .ThenBy(product => product.Name, StringComparer.Ordinal)
         .ToList();
@@ -231,7 +239,8 @@ static List<Artifact> SelectBalanced(IReadOnlyCollection<Artifact> artifacts, in
 
 static ProductOutput CreateProduct(
     Artifact artifact,
-    Options options)
+    Options options,
+    bool includeArtifactReference)
 {
     var midpointYear = EraMidpoint(artifact.EraBucket, options.ReferenceYear);
     var ageYears = Math.Max(0, options.ReferenceYear - midpointYear);
@@ -258,6 +267,8 @@ static ProductOutput CreateProduct(
         : artifact.EraTextOriginal.Trim();
 
     var productName = $"{artifact.Name}－縮小複製品";
+    if (includeArtifactReference)
+        productName += $"（故宮編號：{artifact.ArtifactRef}）";
 
     return new ProductOutput(
         StableGuid(externalRef),
