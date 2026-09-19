@@ -7,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using QMAH.Infrastructure.Data;
 using QMAH.Infrastructure.Models.Entities;
 
-// 商品目前是文物收藏卡展示資料，不再把原作描述成縮小複製品；這樣可讓資料庫、前台與部署素材保持同一個產品契約。
-const string CardSize = "A6 明信片尺寸（10.5 × 14.8 公分）";
-const string Notice = "本頁商品為 QMAH 文物收藏卡（明信片版）展示資料，正面使用國立故宮博物院開放資料圖像，背面整理名稱、類型與基本收藏資訊；目前供系統功能測試與課堂展示，不代表已建立實體印刷、付款或出貨流程。";
+// 商品目前是文物明信片展示資料，不再把原作描述成縮小複製品；這樣可讓資料庫、前台與部署素材保持同一個產品契約。
+const string CardSize = "A6 明信片（148 × 105 mm）";
+const string OrientationRule = "依主圖原始寬高自動判斷（橫式／直式）";
+const string Notice = "本頁商品為 QMAH 文物明信片展示資料，正面使用國立故宮博物院開放資料圖像，背面整理名稱、類型與基本收藏資訊。固定 A6 尺寸適合放入收藏冊、展示架或書桌，也能在背面寫下短訊息寄給親朋好友；實際寄送前，請依當地郵務規定確認紙材、尺寸、郵資與郵務面配置。目前內容供系統功能測試與課堂展示，不代表已建立實體印刷、付款或出貨流程。";
 
 try
 {
@@ -36,6 +37,9 @@ try
             && artifact.SourceUrl != ""
             && artifact.LicenseCode == "CC-BY-4.0")
         .ToListAsync();
+
+    // ImageId=0 不是可用圖片；查詢完成後在記憶體過濾，避免把本機函式放進 EF expression tree。
+    artifacts = artifacts.Where(artifact => !IsKnownUnavailableImage(artifact.PrimaryImagePath)).ToList();
 
     var artifactSizes = LoadArtifactSizes(options.ArtifactDataPath);
     if (artifactSizes.Count > 0)
@@ -202,6 +206,11 @@ catch (Exception ex)
     return 1;
 }
 
+// 故宮 ImageId=0 代表來源沒有圖；產生器直接排除，避免把 no image available 寫進正式商品。
+static bool IsKnownUnavailableImage(string? imagePath) =>
+    !string.IsNullOrWhiteSpace(imagePath)
+    && Regex.IsMatch(imagePath, @"(?:[?&])ImageId=0(?:&|$)", RegexOptions.IgnoreCase);
+
 static List<Artifact> SelectBalanced(IReadOnlyCollection<Artifact> artifacts, int count, int seed)
 {
     var groups = artifacts
@@ -266,7 +275,7 @@ static ProductOutput CreateProduct(
         ? artifact.EraBucket.Name.Trim()
         : artifact.EraTextOriginal.Trim();
 
-    var productName = $"{artifact.Name}－文物收藏卡";
+    var productName = $"{artifact.Name}－文物明信片";
     if (includeArtifactReference)
         productName += $"（故宮編號：{artifact.ArtifactRef}）";
 
@@ -276,8 +285,9 @@ static ProductOutput CreateProduct(
         externalRef,
         Trim(productName, 200),
         artifact.Category.Code,
-        $"{marketingCopy.Text}\n\n商品資訊：\n分類：{artifact.Category.Name}\n年代：{eraText}\n商品尺寸：{CardSize}\n原作尺寸：{originalSize}\n\n{Notice}\n\n圖像姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
+        $"{marketingCopy.Text}\n\n商品資訊：\n分類：{artifact.Category.Name}\n年代：{eraText}\n商品尺寸：{CardSize}\n明信片方向：{OrientationRule}\n原作尺寸：{originalSize}\n\n{Notice}\n\n圖像姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
         CardSize,
+        OrientationRule,
         price,
         20,
         artifact.PrimaryImagePath,
@@ -294,63 +304,55 @@ static MarketingCopy CreateMarketingCopy(Artifact artifact, int seed)
     {
         "jade" => new[]
         {
-            $"玉石經過琢磨才成器，也在流傳中留下不同時代的眼光。{name}化為文物收藏卡，讓這份溫潤含蓄的玉器之美走進日常。",
-            $"欣賞玉器，不只看材質，也看工匠如何順著天然質地雕琢成形。{name}文物收藏卡，適合放在近處慢慢看、慢慢品味。",
-            $"一件玉器，可以寄託品味，也能收藏一段時代記憶。以{name}為靈感製作的文物收藏卡，為展示空間添上一份沉靜氣質。",
-            $"從光澤、質地到琢磨留下的細節，玉器總有值得反覆欣賞之處。{name}文物收藏卡，邀你用更親近的距離重新認識它。"
+            $"先看{name}的輪廓、表面光澤與可見琢痕，再回到原作尺寸判斷實物大小；明信片只保留影像線索，不替資料補猜材質或用途。",
+            $"玉器的孔洞、紋飾與邊緣最適合放大比對。這張{name}文物明信片把主圖放在正面，背面另列原作尺寸與來源，查找時不會混在一起。",
+            $"觀看{name}時，可以把正面影像和圖鑑中的原作尺寸並排；明信片固定 A6，玉器本身的長寬高仍以文物資料為準。"
         },
         "bronze" => new[]
         {
-            $"金屬與火塑成器物，歲月再替表面留下時間的痕跡。這件「{name}」文物收藏卡，把銅器沉穩厚實的存在感帶進收藏空間。",
-            $"青銅器迷人的地方，在於器物本身與漫長年代共同形成的質感。以{name}為靈感製作的文物收藏卡，值得從不同角度細看。",
-            $"先看整體輪廓，再找製作與歲月留下的細節，銅器總能讓人多停留一會兒。這件「{name}」文物收藏卡，讓這份歷史感更貼近日常。",
-            $"有些文物不必鋪陳太多，安靜擺著就很有分量。這件「{name}」文物收藏卡延續銅器特有的沉著氣質，適合成為展示中的視覺焦點。"
+            $"青銅器先看器形、口沿、足部與紋飾，再看表面顏色是否可能受光線或保存狀態影響。{name}明信片背面保留來源，方便回到原圖核對。",
+            $"{name}的主圖適合先看整體輪廓，再放大局部紋飾與表面痕跡；明信片尺寸固定，不能拿來推算青銅器的實際大小。",
+            $"如果影像中看得到鑄造接縫、鏽蝕或紋飾，這些才是值得回查的線索。這張{name}文物明信片只整理可見內容，不把觀察寫成鑑定結論。"
         },
         "ceramic" => new[]
         {
-            $"泥土經過塑形與窯火，才成為能被長久欣賞的器物。這件「{name}」文物收藏卡，把陶瓷溫雅耐看的氣質帶到眼前。",
-            $"陶瓷的樂趣，在於輪廓、表面與燒製效果彼此呼應。以{name}為靈感製作的文物收藏卡，適合留在身邊慢慢發現細節。",
-            $"從日常器用到典藏珍品，陶瓷記錄了不同時代對生活之美的想像。這件「{name}」文物收藏卡，讓這段美感自然融入展示空間。",
-            $"一件陶瓷，可以從遠處看整體，也值得靠近欣賞質感。這件「{name}」文物收藏卡，為收藏角落留下一份安定而耐看的風景。"
+            $"陶瓷先看器口、腹部、底足與釉面，再對照紋飾在器身上的位置。{name}文物明信片正面保留整體主圖，背面列原作尺寸，方便分清卡片與實物。",
+            $"{name}的釉色和輪廓是主圖裡最容易比較的兩項；若要判斷窯口、年代或工藝，仍應回到圖鑑來源，不以明信片代替研究資料。",
+            $"固定 A6 尺寸讓{name}適合放在書桌或展示架，但不代表原作也是同樣大小。商品頁把兩個尺寸分開列出，展示前先量空間比較準。"
         },
         "enamel" => new[]
         {
-            $"琺瑯以釉料與燒製換來鮮明而細緻的層次。這件「{name}」文物收藏卡，把這份講究工序的華美濃縮成展示亮點。",
-            $"色彩是琺瑯最直接的吸引力，工序與細節則值得再三欣賞。以{name}為靈感製作的文物收藏卡，讓空間多一抹典藏氣息。",
-            $"琺瑯工藝把色彩、材質與火候交織在同一件作品裡。這件「{name}」文物收藏卡，適合近看其中豐富而有秩序的視覺層次。",
-            $"想讓展示空間更有亮點，又保留古典工藝的細膩感，這件「{name}」文物收藏卡會是一件很有存在感的收藏。"
+            $"琺瑯器可以先看色塊、邊線與裝飾區域的分界；{name}文物明信片保留主圖和基本來源，方便把可見色彩與原作資料分開核對。",
+            $"{name}的表面反光會受觀看角度和燈光影響，商品頁的主圖只是一個固定視角。背面列出來源與原作尺寸，避免把照片效果當成材質結論。",
+            $"觀看{name}時，先比較整體構圖，再看局部釉色與線條，比只用鮮豔或漂亮形容更容易回到實際影像。明信片成品固定為 A6。"
         },
         "lacquer" => new[]
         {
-            $"一道漆、一段等待，漆器的深度來自層層累積的工序。這件「{name}」文物收藏卡，把這份沉靜而講究的工藝氣質帶進日常。",
-            $"漆器耐看的地方，在於表面質感與製作時間共同留下的韻味。以{name}為靈感製作的文物收藏卡，適合在近處慢慢欣賞。",
-            $"光影落在漆面上，每個角度都有不同感受。這件「{name}」文物收藏卡延續漆器含蓄而精緻的魅力，為展示空間添上一份古雅。",
-            $"漆藝講究耐心，也讓器物擁有難以取代的深沉質感。這件「{name}」文物收藏卡，是一件越看越能發現味道的收藏。"
+            $"漆器主圖先看器形和表面光澤，再找可見的紋樣、刻痕或磨耗；{name}文物明信片把影像與原作尺寸分開呈現，適合拿來回查細節。",
+            $"漆面反光會隨角度改變，觀看{name}時最好不要只用一張照片判斷表面狀態。商品背面列來源與基本資訊，研究仍回到圖鑑原圖。",
+            $"{name}固定做成 A6 明信片，展示時可以靠近看圖，但不能由卡片比例推算漆器實物大小；原作尺寸會另外標示。"
         },
         "carving" => new[]
         {
-            $"雕刻是在材料上不斷取捨，最後留下最想表達的形貌。這件「{name}」文物收藏卡，讓刀工與構思成為可以近距離欣賞的焦點。",
-            $"不同材料有不同個性，好的雕刻懂得順勢而為。以{name}為靈感製作的文物收藏卡，保留一份因材施藝的工藝趣味。",
-            $"雕刻值得從多個角度觀看，輪廓、轉折與細部會逐一展開。這件「{name}」文物收藏卡，適合擺在能讓人停下腳步的位置。",
-            $"從一塊材料到一件作品，中間藏著工匠無數次判斷。這件「{name}」文物收藏卡，把這份手藝凝聚成耐看的收藏。"
+            $"雕刻品要看輪廓、轉折、刀痕與側面厚度；{name}文物明信片正面保留主圖，背面列原作尺寸，方便知道哪些是影像線索、哪些是實物尺度。",
+            $"若主圖能看到工具痕、磨耗或材料紋理，可以把位置記下來再回查資料；不要只用表面顏色推定材質或年代。這是{name}明信片的觀看重點。",
+            $"{name}的展示方向依主圖自然寬高判斷，長形作品不硬裁成正方形；成品仍固定為 A6 明信片，原作大小另列。"
         },
         "coin" => new[]
         {
-            $"方寸之間，裝得下年代、制度與人們往來交易的痕跡。這件「{name}」文物收藏卡，從一枚錢幣打開認識歷史的新角度。",
-            $"錢幣曾在人群之間流轉，如今也成為辨認時代的重要線索。以{name}為靈感製作的文物收藏卡，小巧卻很有故事。",
-            $"看錢幣，不只看名稱，也看文字、形制與時代背景。這件「{name}」文物收藏卡，適合作為一段歷史收藏的起點。",
-            $"一枚錢幣，連起的是制度與日常生活。這件「{name}」文物收藏卡，把龐大的時代故事收進容易細看的尺寸。"
+            $"錢幣先看正背面文字、穿孔、輪廓與邊緣磨耗，再回到圖鑑核對年代和版別；{name}文物明信片只呈現主圖，不把卡片尺寸當成錢幣實際大小。",
+            $"若{name}是方孔錢，穿孔形狀與錢文位置都值得比對；若主圖看不清楚，就保留疑問，不用一句「看起來像」代替資料。",
+            $"錢幣原作尺寸通常不大，但商品仍固定為 A6 明信片，方便閱讀正背面影像與來源；兩種尺寸在商品頁分開標示。"
         },
         "painting" => new[]
         {
-            $"一幅畫最迷人的地方，是每次觀看都可能發現不同線索。這件「{name}」文物收藏卡，把畫面的節奏與意境帶進日常空間。",
-            $"從構圖、線條到題材安排，書畫總有值得慢慢閱讀之處。以{name}為靈感製作的文物收藏卡，讓欣賞不必受距離限制。",
-            $"遠看整體氣勢，近看筆墨細節，書畫能陪人反覆觀看。這件「{name}」文物收藏卡，為牆面或展示角落留下一段雅致風景。",
-            $"畫面不只記錄所見，也保存創作者觀看世界的方式。這件「{name}」文物收藏卡，邀你把這份想像帶進自己的空間。"
+            $"書畫先看完整構圖，再看題跋、鈐印、筆墨與留白；{name}是長幅作品時，明信片依主圖比例採橫式或直式，不把原圖硬裁成方形。",
+            $"{name}的正面保留主要畫面，背面列原作尺寸與來源；A6 是商品尺寸，不是畫冊或畫卷的實際長寬。需要細讀時仍應回到大圖。",
+            $"觀看書畫時，先確認畫面方向和題跋位置，再看局部線條。這張{name}文物明信片把名稱和類型放在正面，方便展示時辨認作品。"
         },
         _ => new[]
         {
-            $"{name}化為文物收藏卡，讓原作文物的時代氣息走進日常，也成為一件值得細看的收藏。"
+            $"{name}文物明信片正面使用來源圖像，背面列名稱、類型、原作尺寸與來源；成品固定為 A6，適合展示與回查，不替原作補寫沒有來源的結論。"
         }
     };
 
@@ -441,7 +443,7 @@ static string ApprovalToken(IReadOnlyCollection<ProductOutput> products, Options
 {
     var value = string.Join('\n', products
             .OrderBy(product => product.ExternalRef, StringComparer.Ordinal)
-            .Select(product => $"{product.ExternalRef}|{product.SizeText}|{product.CopyTemplateId}"))
+            .Select(product => $"{product.ExternalRef}|{product.SizeText}|{product.PostcardOrientation}|{product.CopyTemplateId}"))
         + $"\n{options.Count}|{options.MinimumPrice}|{options.MaximumPrice}|{options.Seed}|{options.ReferenceYear}";
     return StableHex(value, 16);
 }
@@ -454,6 +456,7 @@ sealed record ProductOutput(
     string CategoryCode,
     string Description,
     string SizeText,
+    string PostcardOrientation,
     int Price,
     int Stock,
     string PrimaryImagePath,

@@ -57,6 +57,8 @@ pwsh -File .\tools\QmahDataTools\Export-ReferenceDatabase.ps1 -Version 0.7.1
 
 `generate-showcase-data` 會在同一個資料庫交易中產生社群／商城關聯資料，以及每日登入／簽到、點數、鑰匙、鑰匙進度與符合登入條件的成就。各項資料量可分別指定：
 
+如果資料庫目前有啟用且尚未結束的 `CouponDefinitions`，工具會把前幾筆優惠券條件轉成 `SocialPosts` 的 `ANNOUNCEMENT`／`OFFICIAL` 商城優惠活動，使用 `STORE` 看板。商城的 `/api/v1/store/promotions` 直接讀這些公告的標題、本文與發布日期，因此社群公告與商城展示不會各自維護一份文案；真正折抵仍由結帳流程重新驗證優惠券定義。
+
 ```text
 --activity-days <0-3650>
 --point-transaction-count <0-10000>
