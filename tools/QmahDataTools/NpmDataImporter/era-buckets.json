@@ -24,6 +24,7 @@
   { "code": "JAPAN_SHOWA", "name": "日本昭和時代", "startYear": 1926, "endYear": 1989 },
   { "code": "JAPAN_HEISEI", "name": "日本平成時代", "startYear": 1989, "endYear": 2019 },
   { "code": "JAPAN_REIWA", "name": "日本令和時代", "startYear": 2019, "endYear": null },
+  { "code": "JAPAN_EDO", "name": "日本江戶時代", "startYear": 1603, "endYear": 1868 },
   { "code": "NEOLITHIC", "name": "新石器時代", "startYear": -10000, "endYear": -2000 },
   { "code": "YANGSHAO", "name": "仰韶文化", "startYear": -5000, "endYear": -3000 },
   { "code": "HONGSHAN", "name": "紅山文化", "startYear": -4700, "endYear": -2900 },

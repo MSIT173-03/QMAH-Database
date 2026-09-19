@@ -90,6 +90,8 @@ static partial class ArtifactPipeline
         var qualityRows = new List<ArtifactQualityRow>();
         var datasetStats = new List<DatasetRunStats>();
         var failures = new List<PipelineFailure>();
+        // 名稱是展示與題庫的去重鍵；跨分類也共用，避免同一個名義在不同入口重複出現。
+        var nameOccurrences = new Dictionary<string, int>(StringComparer.Ordinal);
         var totalRequested = options.OfflineInput is null
             ? options.Datasets.Sum(x => (long)x.RequestedCount)
             : 0L;
@@ -115,6 +117,7 @@ static partial class ArtifactPipeline
                     .ToList();
 
                 var rawRows = new List<NpmSourceRow>(candidates.Count);
+                var datasetNameOccurrences = new Dictionary<string, int>(StringComparer.Ordinal);
                 foreach (var record in candidates)
                 {
                     if (TryDeserializeSource(record.SourcePayloadJson, out var source))
@@ -131,10 +134,25 @@ static partial class ArtifactPipeline
                 foreach (var original in candidates)
                 {
                     var normalized = NormalizeImportedRecord(original, options.MediaRoot);
+                    var nameKey = NormalizeNameForDedupe(normalized.Record.Name);
+                    if (!string.IsNullOrWhiteSpace(nameKey)
+                        && !CanUseOfflineName(
+                            nameOccurrences,
+                            datasetNameOccurrences,
+                            nameKey,
+                            dataset.Code,
+                            NameOccurrenceLimit(dataset.Code)))
+                    {
+                        AddDuplicateNameQuality(dataset.Code, normalized.Record, normalized.Quality, failures, qualityRows);
+                        continue;
+                    }
+
                     qualityRows.Add(normalized.Quality);
                     failures.AddRange(normalized.Failures);
                     if (normalized.Record.QuestionEnabled)
                     {
+                        IncrementNameOccurrence(nameOccurrences, nameKey);
+                        IncrementNameOccurrence(datasetNameOccurrences, nameKey);
                         records.Add(normalized.Record);
                         selected.Add(normalized.Record);
                     }
@@ -199,13 +217,28 @@ static partial class ArtifactPipeline
                             (long)eligibleRows.Count,
                             (long)dataset.RequestedCount + candidateBuffer);
                     var orderedRows = OrderEligibleRows(eligibleRows, options.SelectionMode, options.Seed, dataset.Code);
+                    // 先以名稱限制來源候選，再做年代分散；否則同名錢幣會在年代分散前吃掉候選額度。
+                    var nameLimitedRows = SelectNameLimitedRows(
+                        orderedRows,
+                        eligibleRows.Count,
+                        nameOccurrences,
+                        NameOccurrenceLimit(dataset.Code));
                     var candidates = options.SelectionMode == "sequential"
-                        ? orderedRows.Take(candidateCount).ToList()
-                        : SelectEraDiverse(orderedRows, candidateCount);
+                        ? nameLimitedRows.Take(candidateCount).ToList()
+                        : SelectEraDiverse(nameLimitedRows, candidateCount, NameOccurrenceLimit(dataset.Code));
                     Console.WriteLine($"SELECT|{dataset.Code}|mode={options.SelectionMode}|seed={options.Seed}|source={sourceRows.Count}|question-ready={eligibleRows.Count}|candidates={candidates.Count}|requested={dataset.RequestedCount}");
 
                     var processed = await ProcessOnlineRowsAsync(
-                        dataset, candidates, dataset.RequestedCount, options, http, qualityRows, failures, cancellationToken);
+                        dataset,
+                        candidates,
+                        dataset.RequestedCount,
+                        NameOccurrenceLimit(dataset.Code),
+                        nameOccurrences,
+                        options,
+                        http,
+                        qualityRows,
+                        failures,
+                        cancellationToken);
                     records.AddRange(processed.Records);
 
                     var stats = BuildDatasetStats(dataset, dataset.RequestedCount, sourceRows.Count, processed.Records.Count,
@@ -241,6 +274,16 @@ static partial class ArtifactPipeline
             .OrderBy(record => record.CategoryCode, StringComparer.Ordinal)
             .ThenBy(record => record.ArtifactRef, StringComparer.Ordinal)
             .ToList();
+        var invalidNameMultiplicity = orderedRecords
+            .GroupBy(record => NormalizeNameForDedupe(record.Name), StringComparer.Ordinal)
+            .FirstOrDefault(group => group.Count() > 2
+                || (group.Any(record => !record.CategoryCode.Equals("COIN", StringComparison.OrdinalIgnoreCase))
+                    && group.Count() > 1));
+        if (invalidNameMultiplicity is not null)
+        {
+            throw new InvalidDataException(
+                $"輸出資料的同名文物超過契約上限：{invalidNameMultiplicity.Key}。非錢幣必須唯一，錢幣最多兩筆。");
+        }
         var orderedQualityRows = qualityRows
             .OrderBy(row => row.Dataset, StringComparer.Ordinal)
             .ThenBy(row => row.ArtifactRef, StringComparer.Ordinal)
@@ -321,6 +364,8 @@ static partial class ArtifactPipeline
         Dataset dataset,
         IReadOnlyList<NpmSourceRow> candidates,
         int targetCount,
+        int nameOccurrenceLimit,
+        Dictionary<string, int> nameOccurrences,
         PipelineOptions options,
         HttpClient http,
         List<ArtifactQualityRow> qualityRows,
@@ -332,6 +377,10 @@ static partial class ArtifactPipeline
         {
             if (records.Count >= targetCount) break;
             cancellationToken.ThrowIfCancellationRequested();
+            var nameKey = NormalizeNameForDedupe(source.Name);
+            if (!CanUseName(nameOccurrences, nameKey, nameOccurrenceLimit))
+                continue;
+
             var normalized = EraNormalizer.Normalize(source.Era, source.Identifier);
             var sourcePayloadJson = SerializeSource(source);
             var media = options.DownloadImages
@@ -360,6 +409,7 @@ static partial class ArtifactPipeline
                 new PipelineFailure(dataset.Code, record.ArtifactRef, failure.Stage, failure.Field, failure.Message)));
             if (record.QuestionEnabled)
             {
+                IncrementNameOccurrence(nameOccurrences, nameKey);
                 records.Add(record);
             }
             else
@@ -534,13 +584,28 @@ static partial class ArtifactPipeline
         !string.IsNullOrWhiteSpace(row.Identifier)
         && !string.IsNullOrWhiteSpace(row.Name)
         && !string.IsNullOrWhiteSpace(row.Url)
-        && !string.IsNullOrWhiteSpace(row.ImageUrlM);
+        && !string.IsNullOrWhiteSpace(row.ImageUrlM)
+        // 故宮 ImageId=0 會回傳「no image available」佔位圖；主圖與縮圖都在選取階段排除，
+        // 避免只因主圖正常、縮圖失效就把錯誤媒體帶進正式資料包。
+        && !IsKnownUnavailableImage(row.ImageUrlM)
+        && !IsKnownUnavailableImage(row.ImageUrlS);
 
-    private static List<NpmSourceRow> SelectEraDiverse(IReadOnlyList<NpmSourceRow> ranked, int count)
+    private static bool IsKnownUnavailableImage(string? imageUrl) =>
+        !string.IsNullOrWhiteSpace(imageUrl)
+        && Regex.IsMatch(imageUrl, @"(?:[?&])ImageId=0(?:&|$)", RegexOptions.IgnoreCase);
+
+    private static List<NpmSourceRow> SelectEraDiverse(
+        IReadOnlyList<NpmSourceRow> ranked,
+        int count,
+        int maxNameOccurrences = 1)
     {
+        // 先完成唯一名稱的年代分散，再補同名例外，避免例外資料排在前面吃掉唯一名稱名額。
+        var uniqueRanked = maxNameOccurrences > 1
+            ? SelectNameLimitedRows(ranked, ranked.Count, new Dictionary<string, int>(StringComparer.Ordinal), 1)
+            : ranked.ToList();
         var selected = new List<NpmSourceRow>(count);
         var selectedRefs = new HashSet<string>(StringComparer.Ordinal);
-        var queues = ranked
+        var queues = uniqueRanked
             .Select(row => new { Row = row, Era = EraNormalizer.Normalize(row.Era, row.Identifier) })
             .Where(x => !x.Era.RequiresReview)
             .GroupBy(x => x.Era.Bucket)
@@ -560,12 +625,114 @@ static partial class ArtifactPipeline
             }
         }
 
-        foreach (var row in ranked)
+        foreach (var row in uniqueRanked)
         {
             if (selected.Count >= count) break;
             if (selectedRefs.Add(row.Identifier)) selected.Add(row);
         }
+
+        if (selected.Count < count && maxNameOccurrences > 1)
+        {
+            var selectedNameOccurrences = selected
+                .GroupBy(row => NormalizeNameForDedupe(row.Name), StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+            foreach (var row in ranked)
+            {
+                if (selected.Count >= count || !selectedRefs.Add(row.Identifier)) continue;
+                var nameKey = NormalizeNameForDedupe(row.Name);
+                if (!CanUseName(selectedNameOccurrences, nameKey, maxNameOccurrences)) continue;
+                IncrementNameOccurrence(selectedNameOccurrences, nameKey);
+                selected.Add(row);
+            }
+        }
         return selected;
+    }
+
+    private static List<NpmSourceRow> SelectNameLimitedRows(
+        IReadOnlyList<NpmSourceRow> ranked,
+        int count,
+        IReadOnlyDictionary<string, int> existingNameOccurrences,
+        int maxOccurrences)
+    {
+        var selected = new List<NpmSourceRow>(Math.Min(count, ranked.Count));
+        var occurrences = new Dictionary<string, int>(existingNameOccurrences, StringComparer.Ordinal);
+        var preexistingNameKeys = existingNameOccurrences.Keys.ToHashSet(StringComparer.Ordinal);
+
+        // 第一輪只取每個名稱的第一筆，確保即使允許錢幣例外，唯一名稱仍優先進入候選。
+        foreach (var row in ranked)
+        {
+            if (selected.Count >= count) break;
+            var nameKey = NormalizeNameForDedupe(row.Name);
+            if (occurrences.ContainsKey(nameKey)) continue;
+            IncrementNameOccurrence(occurrences, nameKey);
+            selected.Add(row);
+        }
+
+        if (selected.Count >= count || maxOccurrences <= 1) return selected;
+
+        // 第二輪才補同名第二筆；這個例外目前只由 COIN 使用，且上限為兩筆。
+        foreach (var row in ranked)
+        {
+            if (selected.Count >= count) break;
+            var nameKey = NormalizeNameForDedupe(row.Name);
+            if (preexistingNameKeys.Contains(nameKey)) continue;
+            if (!CanUseName(occurrences, nameKey, maxOccurrences)) continue;
+            IncrementNameOccurrence(occurrences, nameKey);
+            selected.Add(row);
+        }
+        return selected;
+    }
+
+    private static int NameOccurrenceLimit(string datasetCode) =>
+        // 錢幣來源確實存在大量同名但編號不同的館藏；最多保留兩筆作為資料不足時的窄例外。
+        datasetCode.Equals("COIN", StringComparison.OrdinalIgnoreCase) ? 2 : 1;
+
+    private static bool CanUseName(
+        IReadOnlyDictionary<string, int> occurrences,
+        string nameKey,
+        int maxOccurrences) =>
+        !string.IsNullOrWhiteSpace(nameKey)
+        && (!occurrences.TryGetValue(nameKey, out var current) || current < maxOccurrences);
+
+    private static bool CanUseOfflineName(
+        IReadOnlyDictionary<string, int> globalOccurrences,
+        IReadOnlyDictionary<string, int> datasetOccurrences,
+        string nameKey,
+        string datasetCode,
+        int maxOccurrences) =>
+        !globalOccurrences.ContainsKey(nameKey)
+            || (datasetCode.Equals("COIN", StringComparison.OrdinalIgnoreCase)
+                && datasetOccurrences.TryGetValue(nameKey, out var current)
+                && current < maxOccurrences);
+
+    private static void IncrementNameOccurrence(Dictionary<string, int> occurrences, string nameKey)
+    {
+        if (string.IsNullOrWhiteSpace(nameKey)) return;
+        occurrences[nameKey] = occurrences.TryGetValue(nameKey, out var current) ? current + 1 : 1;
+    }
+
+    private static void AddDuplicateNameQuality(
+        string datasetCode,
+        ArtifactImportRow record,
+        ArtifactQualityRow quality,
+        List<PipelineFailure> failures,
+        List<ArtifactQualityRow> qualityRows)
+    {
+        var duplicateFailure = new QualityFailure(
+            "deduplication",
+            "Name",
+            "正規化後名稱已達保留上限；為避免瀏覽與題庫重複，略過此筆來源資料。");
+        qualityRows.Add(quality with
+        {
+            QuestionEnabled = false,
+            Failures = quality.Failures.Append(duplicateFailure).ToList()
+        });
+        failures.Add(new PipelineFailure(
+            datasetCode,
+            record.ArtifactRef,
+            duplicateFailure.Stage,
+            duplicateFailure.Field,
+            duplicateFailure.Message));
     }
 
     private static IReadOnlyList<NpmSourceRow> OrderEligibleRows(
@@ -690,6 +857,19 @@ static partial class ArtifactPipeline
         if (normalized.Contains(":", StringComparison.Ordinal) || normalized.StartsWith("//", StringComparison.Ordinal))
             return "";
         return normalized;
+    }
+
+    private static string NormalizeNameForDedupe(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return "";
+
+        // FormKC 先統一全形字，再移除空白、標點與符號，讓「同一名稱」不因括號或排版差異逃過去重。
+        var normalized = value.Normalize(NormalizationForm.FormKC).ToUpperInvariant();
+        return new string(normalized
+            .Where(character => !char.IsWhiteSpace(character)
+                && !char.IsPunctuation(character)
+                && !char.IsSymbol(character))
+            .ToArray());
     }
 
     private static string ToOutputRelativePath(string path, string outputDirectory)
@@ -936,7 +1116,7 @@ var html = new StringBuilder("<!doctype html><html lang=\"zh-Hant\"><meta charse
         "QING" => "清", "MING" => "明", "YUAN" => "元", "SONG" => "宋", "LIAO" => "遼", "JIN" => "金",
         "TANG" => "唐", "SUI" => "隋", "HAN" => "漢", "QIN" => "秦", "WARRING_STATES" => "戰國",
         "SPRING_AUTUMN" => "春秋", "ZHOU" => "周", "SHANG" => "商", "NEOLITHIC" => "新石器時代",
-        "REPUBLIC" => "民國", "JAPAN" => "日本", "CROSS_DYNASTY" => "跨年代", "UNKNOWN" => "年代不明",
+        "REPUBLIC" => "民國", "JAPAN" => "日本", "JAPAN_EDO" => "日本江戶時代", "CROSS_DYNASTY" => "跨年代", "UNKNOWN" => "年代不明",
         _ => code
     };
 
@@ -1420,7 +1600,15 @@ sealed record EraResult(
     public bool RequiresReview => !string.Equals(Confidence, "HIGH", StringComparison.Ordinal);
 }
 
-sealed record EraRule(string Id, string[] Tokens, string Bucket, int? StartYear, int? EndYear, string Confidence, int? YearOne = null);
+sealed record EraRule(
+    string Id,
+    string[] Tokens,
+    string Bucket,
+    int? StartYear,
+    int? EndYear,
+    string Confidence,
+    int? YearOne = null,
+    bool ExactOnly = false);
 
 sealed record EraOverride(string Bucket, int? StartYear, int? EndYear, string? Reason);
 
@@ -1440,7 +1628,10 @@ static class EraNormalizer
 
         var matches = Rules.Value
             .SelectMany(rule => rule.Tokens.Select(token => (Rule: rule, Token: NormalizeText(token))))
-            .Where(x => x.Token.Length > 1 && era.Contains(x.Token, StringComparison.Ordinal))
+            .Where(x => x.Token.Length > 1 || x.Rule.ExactOnly)
+            .Where(x => x.Rule.ExactOnly
+                ? era.Equals(x.Token, StringComparison.Ordinal)
+                : era.Contains(x.Token, StringComparison.Ordinal))
             .OrderByDescending(x => x.Token.Length)
             .ThenByDescending(x => ConfidenceRank(x.Rule.Confidence))
             .ToList();
@@ -1496,6 +1687,9 @@ static class EraNormalizer
             ("民國110年", "REPUBLIC", "MEDIUM"),
             ("明治45年", "JAPAN_MEIJI", "HIGH"),
             ("昭和64年", "JAPAN_SHOWA", "HIGH"),
+            ("日本江戶時代", "JAPAN_EDO", "HIGH"),
+            ("明", "MING", "HIGH"),
+            ("清", "QING", "HIGH"),
             ("遼代", "LIAO", "HIGH"),
             ("南北朝", "NORTH_SOUTH", "MEDIUM"),
             ("西元1644年至1912年", "EXPLICIT_RANGE", "MEDIUM"),

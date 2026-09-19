@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -8,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using QMAH.Infrastructure.Data;
 using QMAH.Infrastructure.Models.Entities;
 
-const string Notice = "本頁商品為 MSIT173 課程專題的虛擬展示資料，使用國立故宮博物院開放資料圖像建立對應的縮小複製品，僅供系統功能測試與課堂發表，不提供訂購、付款或實際販售。商品尺寸依公開資料換算為原作的一半；來源標示待測量或未提供時不自行推測。";
+// 商品目前是文物收藏卡展示資料，不再把原作描述成縮小複製品；這樣可讓資料庫、前台與部署素材保持同一個產品契約。
+const string CardSize = "A6 明信片尺寸（10.5 × 14.8 公分）";
+const string Notice = "本頁商品為 QMAH 文物收藏卡（明信片版）展示資料，正面使用國立故宮博物院開放資料圖像，背面整理名稱、類型與基本收藏資訊；目前供系統功能測試與課堂展示，不代表已建立實體印刷、付款或出貨流程。";
 
 try
 {
@@ -261,12 +262,11 @@ static ProductOutput CreateProduct(
         : artifact.AttributionText.Trim();
     var marketingCopy = CreateMarketingCopy(artifact, options.Seed);
     var originalSize = NormalizeOriginalSize(artifact.SizeText);
-    var replicaSize = CreateReplicaSize(originalSize);
     var eraText = string.IsNullOrWhiteSpace(artifact.EraTextOriginal)
         ? artifact.EraBucket.Name.Trim()
         : artifact.EraTextOriginal.Trim();
 
-    var productName = $"{artifact.Name}－縮小複製品";
+    var productName = $"{artifact.Name}－文物收藏卡";
     if (includeArtifactReference)
         productName += $"（故宮編號：{artifact.ArtifactRef}）";
 
@@ -276,8 +276,8 @@ static ProductOutput CreateProduct(
         externalRef,
         Trim(productName, 200),
         artifact.Category.Code,
-        $"{marketingCopy.Text}\n\n商品資訊：\n分類：{artifact.Category.Name}\n年代：{eraText}\n商品尺寸：{replicaSize}\n原作尺寸：{originalSize}\n\n{Notice}\n\n圖像姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
-        replicaSize,
+        $"{marketingCopy.Text}\n\n商品資訊：\n分類：{artifact.Category.Name}\n年代：{eraText}\n商品尺寸：{CardSize}\n原作尺寸：{originalSize}\n\n{Notice}\n\n圖像姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
+        CardSize,
         price,
         20,
         artifact.PrimaryImagePath,
@@ -294,63 +294,63 @@ static MarketingCopy CreateMarketingCopy(Artifact artifact, int seed)
     {
         "jade" => new[]
         {
-            $"玉石經過琢磨才成器，也在流傳中留下不同時代的眼光。{name}化為縮小複製品，讓這份溫潤含蓄的玉器之美走進日常。",
-            $"欣賞玉器，不只看材質，也看工匠如何順著天然質地雕琢成形。{name}縮小複製品，適合放在近處慢慢看、慢慢品味。",
-            $"一件玉器，可以寄託品味，也能收藏一段時代記憶。以{name}為靈感製作的縮小複製品，為展示空間添上一份沉靜氣質。",
-            $"從光澤、質地到琢磨留下的細節，玉器總有值得反覆欣賞之處。{name}縮小複製品，邀你用更親近的距離重新認識它。"
+            $"玉石經過琢磨才成器，也在流傳中留下不同時代的眼光。{name}化為文物收藏卡，讓這份溫潤含蓄的玉器之美走進日常。",
+            $"欣賞玉器，不只看材質，也看工匠如何順著天然質地雕琢成形。{name}文物收藏卡，適合放在近處慢慢看、慢慢品味。",
+            $"一件玉器，可以寄託品味，也能收藏一段時代記憶。以{name}為靈感製作的文物收藏卡，為展示空間添上一份沉靜氣質。",
+            $"從光澤、質地到琢磨留下的細節，玉器總有值得反覆欣賞之處。{name}文物收藏卡，邀你用更親近的距離重新認識它。"
         },
         "bronze" => new[]
         {
-            $"金屬與火塑成器物，歲月再替表面留下時間的痕跡。這件「{name}」縮小複製品，把銅器沉穩厚實的存在感帶進收藏空間。",
-            $"青銅器迷人的地方，在於器物本身與漫長年代共同形成的質感。以{name}為靈感製作的縮小複製品，值得從不同角度細看。",
-            $"先看整體輪廓，再找製作與歲月留下的細節，銅器總能讓人多停留一會兒。這件「{name}」縮小複製品，讓這份歷史感更貼近日常。",
-            $"有些文物不必鋪陳太多，安靜擺著就很有分量。這件「{name}」縮小複製品延續銅器特有的沉著氣質，適合成為展示中的視覺焦點。"
+            $"金屬與火塑成器物，歲月再替表面留下時間的痕跡。這件「{name}」文物收藏卡，把銅器沉穩厚實的存在感帶進收藏空間。",
+            $"青銅器迷人的地方，在於器物本身與漫長年代共同形成的質感。以{name}為靈感製作的文物收藏卡，值得從不同角度細看。",
+            $"先看整體輪廓，再找製作與歲月留下的細節，銅器總能讓人多停留一會兒。這件「{name}」文物收藏卡，讓這份歷史感更貼近日常。",
+            $"有些文物不必鋪陳太多，安靜擺著就很有分量。這件「{name}」文物收藏卡延續銅器特有的沉著氣質，適合成為展示中的視覺焦點。"
         },
         "ceramic" => new[]
         {
-            $"泥土經過塑形與窯火，才成為能被長久欣賞的器物。這件「{name}」縮小複製品，把陶瓷溫雅耐看的氣質帶到眼前。",
-            $"陶瓷的樂趣，在於輪廓、表面與燒製效果彼此呼應。以{name}為靈感製作的縮小複製品，適合留在身邊慢慢發現細節。",
-            $"從日常器用到典藏珍品，陶瓷記錄了不同時代對生活之美的想像。這件「{name}」縮小複製品，讓這段美感自然融入展示空間。",
-            $"一件陶瓷，可以從遠處看整體，也值得靠近欣賞質感。這件「{name}」縮小複製品，為收藏角落留下一份安定而耐看的風景。"
+            $"泥土經過塑形與窯火，才成為能被長久欣賞的器物。這件「{name}」文物收藏卡，把陶瓷溫雅耐看的氣質帶到眼前。",
+            $"陶瓷的樂趣，在於輪廓、表面與燒製效果彼此呼應。以{name}為靈感製作的文物收藏卡，適合留在身邊慢慢發現細節。",
+            $"從日常器用到典藏珍品，陶瓷記錄了不同時代對生活之美的想像。這件「{name}」文物收藏卡，讓這段美感自然融入展示空間。",
+            $"一件陶瓷，可以從遠處看整體，也值得靠近欣賞質感。這件「{name}」文物收藏卡，為收藏角落留下一份安定而耐看的風景。"
         },
         "enamel" => new[]
         {
-            $"琺瑯以釉料與燒製換來鮮明而細緻的層次。這件「{name}」縮小複製品，把這份講究工序的華美濃縮成展示亮點。",
-            $"色彩是琺瑯最直接的吸引力，工序與細節則值得再三欣賞。以{name}為靈感製作的縮小複製品，讓空間多一抹典藏氣息。",
-            $"琺瑯工藝把色彩、材質與火候交織在同一件作品裡。這件「{name}」縮小複製品，適合近看其中豐富而有秩序的視覺層次。",
-            $"想讓展示空間更有亮點，又保留古典工藝的細膩感，這件「{name}」縮小複製品會是一件很有存在感的收藏。"
+            $"琺瑯以釉料與燒製換來鮮明而細緻的層次。這件「{name}」文物收藏卡，把這份講究工序的華美濃縮成展示亮點。",
+            $"色彩是琺瑯最直接的吸引力，工序與細節則值得再三欣賞。以{name}為靈感製作的文物收藏卡，讓空間多一抹典藏氣息。",
+            $"琺瑯工藝把色彩、材質與火候交織在同一件作品裡。這件「{name}」文物收藏卡，適合近看其中豐富而有秩序的視覺層次。",
+            $"想讓展示空間更有亮點，又保留古典工藝的細膩感，這件「{name}」文物收藏卡會是一件很有存在感的收藏。"
         },
         "lacquer" => new[]
         {
-            $"一道漆、一段等待，漆器的深度來自層層累積的工序。這件「{name}」縮小複製品，把這份沉靜而講究的工藝氣質帶進日常。",
-            $"漆器耐看的地方，在於表面質感與製作時間共同留下的韻味。以{name}為靈感製作的縮小複製品，適合在近處慢慢欣賞。",
-            $"光影落在漆面上，每個角度都有不同感受。這件「{name}」縮小複製品延續漆器含蓄而精緻的魅力，為展示空間添上一份古雅。",
-            $"漆藝講究耐心，也讓器物擁有難以取代的深沉質感。這件「{name}」縮小複製品，是一件越看越能發現味道的收藏。"
+            $"一道漆、一段等待，漆器的深度來自層層累積的工序。這件「{name}」文物收藏卡，把這份沉靜而講究的工藝氣質帶進日常。",
+            $"漆器耐看的地方，在於表面質感與製作時間共同留下的韻味。以{name}為靈感製作的文物收藏卡，適合在近處慢慢欣賞。",
+            $"光影落在漆面上，每個角度都有不同感受。這件「{name}」文物收藏卡延續漆器含蓄而精緻的魅力，為展示空間添上一份古雅。",
+            $"漆藝講究耐心，也讓器物擁有難以取代的深沉質感。這件「{name}」文物收藏卡，是一件越看越能發現味道的收藏。"
         },
         "carving" => new[]
         {
-            $"雕刻是在材料上不斷取捨，最後留下最想表達的形貌。這件「{name}」縮小複製品，讓刀工與構思成為可以近距離欣賞的焦點。",
-            $"不同材料有不同個性，好的雕刻懂得順勢而為。以{name}為靈感製作的縮小複製品，保留一份因材施藝的工藝趣味。",
-            $"雕刻值得從多個角度觀看，輪廓、轉折與細部會逐一展開。這件「{name}」縮小複製品，適合擺在能讓人停下腳步的位置。",
-            $"從一塊材料到一件作品，中間藏著工匠無數次判斷。這件「{name}」縮小複製品，把這份手藝凝聚成耐看的收藏。"
+            $"雕刻是在材料上不斷取捨，最後留下最想表達的形貌。這件「{name}」文物收藏卡，讓刀工與構思成為可以近距離欣賞的焦點。",
+            $"不同材料有不同個性，好的雕刻懂得順勢而為。以{name}為靈感製作的文物收藏卡，保留一份因材施藝的工藝趣味。",
+            $"雕刻值得從多個角度觀看，輪廓、轉折與細部會逐一展開。這件「{name}」文物收藏卡，適合擺在能讓人停下腳步的位置。",
+            $"從一塊材料到一件作品，中間藏著工匠無數次判斷。這件「{name}」文物收藏卡，把這份手藝凝聚成耐看的收藏。"
         },
         "coin" => new[]
         {
-            $"方寸之間，裝得下年代、制度與人們往來交易的痕跡。這件「{name}」縮小複製品，從一枚錢幣打開認識歷史的新角度。",
-            $"錢幣曾在人群之間流轉，如今也成為辨認時代的重要線索。以{name}為靈感製作的縮小複製品，小巧卻很有故事。",
-            $"看錢幣，不只看名稱，也看文字、形制與時代背景。這件「{name}」縮小複製品，適合作為一段歷史收藏的起點。",
-            $"一枚錢幣，連起的是制度與日常生活。這件「{name}」縮小複製品，把龐大的時代故事收進容易細看的尺寸。"
+            $"方寸之間，裝得下年代、制度與人們往來交易的痕跡。這件「{name}」文物收藏卡，從一枚錢幣打開認識歷史的新角度。",
+            $"錢幣曾在人群之間流轉，如今也成為辨認時代的重要線索。以{name}為靈感製作的文物收藏卡，小巧卻很有故事。",
+            $"看錢幣，不只看名稱，也看文字、形制與時代背景。這件「{name}」文物收藏卡，適合作為一段歷史收藏的起點。",
+            $"一枚錢幣，連起的是制度與日常生活。這件「{name}」文物收藏卡，把龐大的時代故事收進容易細看的尺寸。"
         },
         "painting" => new[]
         {
-            $"一幅畫最迷人的地方，是每次觀看都可能發現不同線索。這件「{name}」縮小複製品，把畫面的節奏與意境帶進日常空間。",
-            $"從構圖、線條到題材安排，書畫總有值得慢慢閱讀之處。以{name}為靈感製作的縮小複製品，讓欣賞不必受距離限制。",
-            $"遠看整體氣勢，近看筆墨細節，書畫能陪人反覆觀看。這件「{name}」縮小複製品，為牆面或展示角落留下一段雅致風景。",
-            $"畫面不只記錄所見，也保存創作者觀看世界的方式。這件「{name}」縮小複製品，邀你把這份想像帶進自己的空間。"
+            $"一幅畫最迷人的地方，是每次觀看都可能發現不同線索。這件「{name}」文物收藏卡，把畫面的節奏與意境帶進日常空間。",
+            $"從構圖、線條到題材安排，書畫總有值得慢慢閱讀之處。以{name}為靈感製作的文物收藏卡，讓欣賞不必受距離限制。",
+            $"遠看整體氣勢，近看筆墨細節，書畫能陪人反覆觀看。這件「{name}」文物收藏卡，為牆面或展示角落留下一段雅致風景。",
+            $"畫面不只記錄所見，也保存創作者觀看世界的方式。這件「{name}」文物收藏卡，邀你把這份想像帶進自己的空間。"
         },
         _ => new[]
         {
-            $"{name}化為縮小複製品，讓原作文物的時代氣息走進日常，也成為一件值得細看的收藏。"
+            $"{name}化為文物收藏卡，讓原作文物的時代氣息走進日常，也成為一件值得細看的收藏。"
         }
     };
 
@@ -398,37 +398,6 @@ static string NormalizeOriginalSize(string? value)
     normalized = Regex.Replace(normalized, @"(?<=[\p{L}])(?=\d)", " ");
     normalized = Regex.Replace(normalized, @"公分\s+(?=[\p{L}]+\s*\d)", "公分、");
     return normalized;
-}
-
-static string CreateReplicaSize(string originalSize)
-{
-    if (originalSize.Contains("待測量", StringComparison.Ordinal)
-        || originalSize.Equals("官方資料未提供", StringComparison.Ordinal))
-        return originalSize;
-
-    var expanded = Regex.Replace(
-        originalSize,
-        @"(?<first>\d+(?:\.\d+)?) × (?<second>\d+(?:\.\d+)?) 公分",
-        "${first} 公分 × ${second} 公分");
-    var replacements = 0;
-    var scaled = Regex.Replace(
-        expanded,
-        @"(?<value>\d+(?:\.\d+)?)(?=\s*公分)",
-        match =>
-        {
-            replacements++;
-            var value = decimal.Parse(match.Groups["value"].Value, CultureInfo.InvariantCulture) / 2m;
-            return value.ToString("0.##", CultureInfo.InvariantCulture);
-        });
-
-    scaled = Regex.Replace(
-        scaled,
-        @"(?<first>\d+(?:\.\d+)?) 公分 × (?<second>\d+(?:\.\d+)?) 公分",
-        "${first} × ${second} 公分");
-
-    return replacements == 0
-        ? $"待測量（原始記錄：{originalSize}）"
-        : scaled;
 }
 
 static int EraMidpoint(EraBucket era, int referenceYear)

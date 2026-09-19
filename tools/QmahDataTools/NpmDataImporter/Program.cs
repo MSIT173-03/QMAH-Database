@@ -85,7 +85,7 @@ sealed record ImportOptions(
     bool Help)
 {
     public static string HelpText =>
-        "NpmDataImporter --project <QMAH root|QMAH.Web> --artifacts <json> --media-root <wwwroot\\media> [--products <json>] [--artifact-per-category <正整數>] [--max-products <正整數> | --skip-products] [--no-question-bank] [--apply --approve <預檢確認碼>]";
+        "NpmDataImporter --project <QMAH root|QMAH.Web> --artifacts <json> --media-root <wwwroot\\media> [--products <json>] [--artifact-per-category <正整數或 0>] [--max-products <正整數> | --skip-products] [--no-question-bank] [--apply --approve <預檢確認碼>]";
 
     public static ImportOptions Parse(string[] arguments)
     {
@@ -105,8 +105,8 @@ sealed record ImportOptions(
             return "";
         }
 
-        static int Number(string value, int fallback) =>
-            int.TryParse(value, out var parsed) && parsed >= 1
+        static int Number(string value, int fallback, bool allowZero = false) =>
+            int.TryParse(value, out var parsed) && (parsed >= 1 || (allowZero && parsed == 0))
                 ? parsed
                 : fallback;
 
@@ -133,7 +133,8 @@ sealed record ImportOptions(
             string.IsNullOrWhiteSpace(Value("--connection", "--connection-string"))
                 ? "Server=(localdb)\\MSSQLLocalDB;Database=QMAH;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=False"
                 : Value("--connection", "--connection-string"),
-            Number(Value("--artifact-per-category", "--artifacts-per-category"), 32),
+            // 0 代表不截斷資料包，讓 63 筆唯一錢幣與重新分配後的 512 筆資料可以原樣匯入。
+            Number(Value("--artifact-per-category", "--artifacts-per-category"), 32, allowZero: true),
             skipProducts ? 0 : Number(Value("--max-products"), 256),
             Value("--approve", "--approval-token"),
             arguments.Contains("--apply", StringComparer.OrdinalIgnoreCase),
