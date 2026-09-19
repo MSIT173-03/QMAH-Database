@@ -8,6 +8,8 @@
 
 目前正式資料庫入口是 [db-v0.9.3 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.3)。Release 提供與 `db-v0.9.3` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.9.3.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
+> ⚠️ `db-v0.9.2` 已明確作廢，僅供歷史追溯；請勿下載、還原或部署，所有新環境一律使用 `db-v0.9.3`。
+
 ### db-v0.9.3 修正版更新內容
 
 - 文物、題庫與相關年代資料重新建立為 512 件；舊的 256 件展示文物不保留，八類分布與 18 個年代桶已一併寫入同一份 Snapshot。
@@ -15,6 +17,7 @@
 - 保留既有會員、社群、優惠券與鑰匙資料，並以目前有效優惠券建立官方活動展示資料；另產生跨會員的訂單、付款、評論、點數與鑰匙流水供整合驗證。
 - 媒體與商品路徑和 `QMAH-develop/develop` 同步，列表與明信片詳情使用各自的媒體尺寸；正式部署可依文件將媒體拆出至 CDN。
 - 修正展示資料產生器，依目前 `ProductId` 同步既有訂單明細的商品名稱快照，避免歷史展示訂單仍顯示舊的「縮小複製品」文字。
+- 補上新增 `JAPAN_EDO` 年代的 `KEY-ERA-JAPAN_EDO` 解鎖鑰匙，並重新產生對應的會員鑰匙餘額與流水資料。
 
 ## Repository 內容
 
