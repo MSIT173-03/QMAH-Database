@@ -721,13 +721,15 @@ public sealed class CatalogImportService(QmahDbContext db)
         var sourceDescription = string.IsNullOrWhiteSpace(artifact.DescriptionOriginal)
             ? "以故宮開放資料文物為主題的文物明信片。"
             : artifact.DescriptionOriginal.Trim();
+        // 保底匯入也維持與 ArtifactProductGenerator 相同的套組語意，避免缺少完整商品 JSON 時退回舊的單一明信片文案。
+        var artifactName = artifact.Name.Trim();
         return new CatalogProductImportRow(
             StableGuid($"product:{externalRef}"),
             externalRef,
-            $"{artifact.Name.Trim()}－文物明信片",
+            $"{artifactName}－複製品＆文物明信片套組",
             NormalizeCode(artifact.CategoryCode),
-            $"{sourceDescription}\n\n商品尺寸：{cardSize}\n\n本商品為 QMAH 虛擬展示資料，正面使用故宮開放資料圖像、背面整理基本收藏資訊；僅供系統功能測試與課堂展示，不提供實際販售。",
-            cardSize,
+            $"{artifactName}的商品套組包含一張 A6 文物明信片與一件依{artifactName}原文物影像製作的縮小複製品展示物。\n\n原文物說明：{sourceDescription}\n\n商品尺寸：{cardSize}\n\n本商品為 QMAH 虛擬展示資料，正面使用故宮開放資料圖像、背面整理原文物尺寸與基本收藏資訊；僅供系統功能測試與課堂展示，不提供實際販售。",
+            $"A6 文物明信片＋{artifactName}縮小複製品展示組",
             680 + variation,
             20,
             artifact.ImageUrl,

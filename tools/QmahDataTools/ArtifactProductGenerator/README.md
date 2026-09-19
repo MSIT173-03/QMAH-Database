@@ -1,12 +1,12 @@
 # ArtifactProductGenerator
 
-從 QMAH 現有的 CC BY 4.0 文物建立課程示意商品。這些商品取代來源商城的商品圖片與即時價格。
+從 QMAH 現有的 CC BY 4.0 文物建立「縮小複製品＋文物明信片」套組展示商品。這些商品取代來源商城的商品圖片與即時價格。
 
-工具預設為每件符合授權條件的文物建立一件商品。現有 8 類、每類 32 件、共 256 件，是目前參考 Snapshot 的資料量，不是產生器的固定上限；`--count all` 會依輸入資料包使用全部合格文物。
+工具預設為每件符合授權條件的文物建立一件商品；目前最新版資料集以 512 件為交付基準，但數量仍由輸入資料與 `--count` 決定，不把舊的 256 件 Snapshot 帶回來。`--count all` 會依輸入資料包使用全部合格文物。
 
-商品名稱固定為「文物名稱－文物明信片」，不把「課程示意」放進名稱。商品圖片直接沿用 Catalog 路徑，不建立重複圖片。
+商品名稱固定為「文物名稱－複製品＆文物明信片套組」，不把「課程示意」放進名稱。商品圖片直接沿用 Catalog 路徑，不建立重複圖片。
 
-商品實體尺寸固定為 A6 明信片（148 × 105 mm）；前台明信片元件在圖片載入後讀取自然寬高，自動決定橫式或直式，產生器會把這條方向契約寫入商品說明與輸出 JSON。文物原始尺寸只作為背面資訊，不再被換算成商品尺寸。
+套組內明信片固定為 A6（148 × 105 mm），縮小複製品不擅自捏造實體尺寸；前台在固定展示框內依圖片自然寬高套用單一橫式或直式版型，使用者只能旋轉觀看，不會把同一商品變成另一種明信片規格。文物原始尺寸只作為明信片背面與商品資訊，不會被換算成明信片尺寸。
 
 ## 商品說明模板
 
@@ -27,10 +27,10 @@
 
 新增模板時應維持分類語氣，不宣稱商品真實存在、受歡迎、忠實還原材質或具有官方身分。
 
-說明欄位依序包含：
+說明欄位依序包含（每筆都會帶入對應文物名稱）：
 
-1. 分類專屬的商品開場。
-2. 非官方、沒有實際交易的用途聲明。
+1. 分類專屬且有實際觀看重點的商品開場。
+2. 套組內容、商品用途與原文物尺寸。
 3. CC BY 4.0 圖像姓名標示。
 4. 文物原說明全文。
 
@@ -42,7 +42,7 @@
 
 套用時會同步更新 `catalog.Artifacts.SizeText` 的原始資料，並把 `store.Products.SizeText` 固定寫成 A6 明信片尺寸。Controller 與 View 直接顯示欄位，不再執行尺寸換算。
 
-輸出商品的 `PostcardOrientation` 會標示「依主圖原始寬高自動判斷（橫式／直式）」；這不是猜測資料，而是交由前台在圖片 `naturalWidth`／`naturalHeight` 載入後選擇版型。
+輸出商品的 `PostcardOrientation` 會標示「依主圖原始寬高自動判斷（橫式／直式）」；這不是猜測資料，而是交由前台在圖片 `naturalWidth`／`naturalHeight` 載入後選擇單一版型，商品說明也會明確寫出該名稱的明信片與縮小複製品。
 
 - 原作 `高35.6公分 口徑10.5公分` → 文物尺寸正規化為 `高 35.6 公分、口徑 10.5 公分`，商品仍為固定 A6
 - 原作 `148.7x73` → 文物尺寸正規化為 `148.7 × 73 公分`，商品仍為固定 A6
@@ -50,15 +50,15 @@
 - 官方未提供 → 背面保留「官方資料未提供」，不影響明信片成品尺寸
 - 來源若把「通高／全高／高」的單位誤植為「公克」，工具只在這三種高度標籤後校正為「公分」；真正以「重」標示的重量不換算
 
-`SizeText` 只保存固定明信片成品尺寸；文物尺寸與原始說明會放入商品說明，供明信片背面使用。工具不再對原作尺寸做商品化縮放，也不猜測缺漏資料。`--artifact-data` 若少了目前資料庫中的任何 ArtifactRef，工具會停止，不會產生對錯文物的商品。
+`SizeText` 保存「A6 文物明信片＋縮小複製品展示組」；文物原始尺寸與原始說明會放入商品說明，供明信片背面與商城資訊使用。工具不再對原作尺寸做商品化縮放，也不猜測缺漏資料。`--artifact-data` 若少了目前資料庫中的任何 ArtifactRef，工具會停止，不會產生對錯文物的商品。
 
 價格範圍、商品數量與固定亂數種子都可調整：
 
 ```powershell
 dotnet run --project .\ArtifactProductGenerator -- `
   --count all `
-  --min-price 300 `
-  --max-price 2200 `
+  --min-price 680 `
+  --max-price 1680 `
   --seed 173 `
   --artifact-data D:\qmah-data\output\current\import\artifacts.json `
   --output D:\qmah-data\output\artifact-products.json
@@ -69,8 +69,8 @@ dotnet run --project .\ArtifactProductGenerator -- `
 ```powershell
 dotnet run --project .\ArtifactProductGenerator -- `
   --count all `
-  --min-price 300 `
-  --max-price 2200 `
+  --min-price 680 `
+  --max-price 1680 `
   --seed 173 `
   --artifact-data D:\qmah-data\output\current\import\artifacts.json `
   --output D:\qmah-data\output\artifact-products.json `
@@ -96,7 +96,7 @@ dotnet run --project .\ArtifactProductGenerator -- `
 這裡的價格是課程商城測試資料，不是文物鑑價，也不代表官方商品或市場售價。
 
 ```text
-示意售價 = 280 元基礎價格
+示意售價 = 480 元基礎價格
          + 年代久遠權重
          + 分類製作複雜度權重
          + 固定 seed 變化值

@@ -7,10 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using QMAH.Infrastructure.Data;
 using QMAH.Infrastructure.Models.Entities;
 
-// 商品目前是文物明信片展示資料，不再把原作描述成縮小複製品；這樣可讓資料庫、前台與部署素材保持同一個產品契約。
-const string CardSize = "A6 明信片（148 × 105 mm）";
-const string OrientationRule = "依主圖原始寬高自動判斷（橫式／直式）";
-const string Notice = "本頁商品為 QMAH 文物明信片展示資料，正面使用國立故宮博物院開放資料圖像，背面整理名稱、類型與基本收藏資訊。固定 A6 尺寸適合放入收藏冊、展示架或書桌，也能在背面寫下短訊息寄給親朋好友；實際寄送前，請依當地郵務規定確認紙材、尺寸、郵資與郵務面配置。目前內容供系統功能測試與課堂展示，不代表已建立實體印刷、付款或出貨流程。";
+// 商城現在販售的是縮小複製品＋文物明信片套組；把規格集中在產生器，避免資料庫與前台各自拼出不同說法。
+const string CardSize = "A6 文物明信片（148 × 105 mm）";
+const string BundleSize = "A6 文物明信片＋縮小複製品展示組";
+const string OrientationRule = "依主圖比例自動套用明信片版型";
+const string Notice = "本資料集的商品皆以對應文物建立縮小複製品與文物明信片套組；明信片正面呈現名稱、類型與主圖，背面整理原文物尺寸與說明。";
 
 try
 {
@@ -257,7 +258,8 @@ static ProductOutput CreateProduct(
     var eraWeight = RoundToTen(Math.Min(900, ageYears / 4));
     var categoryWeight = CategoryWeight(artifact.Category.Code);
     var variation = (int)(StableNumber($"price:{options.Seed}:{artifact.ArtifactRef}") % 25) * 10;
-    const int basePrice = 280;
+    // 套組價格以明信片與展示用複製品的合理區間估算，仍保留穩定種子讓測試資料可重現。
+    const int basePrice = 480;
     var calculatedPrice = RoundToTen(basePrice + eraWeight + categoryWeight + variation);
     var price = Math.Clamp(calculatedPrice, options.MinimumPrice, options.MaximumPrice);
     var externalRef = "artifact-" + artifact.ArtifactRef;
@@ -275,9 +277,17 @@ static ProductOutput CreateProduct(
         ? artifact.EraBucket.Name.Trim()
         : artifact.EraTextOriginal.Trim();
 
-    var productName = $"{artifact.Name}－文物明信片";
+    var artifactName = artifact.Name.Trim();
+    var productName = $"{artifactName}－複製品＆文物明信片套組";
     if (includeArtifactReference)
         productName += $"（故宮編號：{artifact.ArtifactRef}）";
+
+    // 每筆商品都直接帶入文物名稱，避免只寫本套組而讓商城使用者看不出複製品與明信片對應哪件文物。
+    var productNotice = CreateProductNotice(
+        artifactName,
+        artifact.Category.Name,
+        eraText,
+        originalSize);
 
     return new ProductOutput(
         StableGuid(externalRef),
@@ -285,8 +295,8 @@ static ProductOutput CreateProduct(
         externalRef,
         Trim(productName, 200),
         artifact.Category.Code,
-        $"{marketingCopy.Text}\n\n商品資訊：\n分類：{artifact.Category.Name}\n年代：{eraText}\n商品尺寸：{CardSize}\n明信片方向：{OrientationRule}\n原作尺寸：{originalSize}\n\n{Notice}\n\n圖像姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
-        CardSize,
+        $"{marketingCopy.Text}\n\n套組內容：\n1. {artifactName}文物明信片，{CardSize}；正面使用文物主圖，版型依圖片比例自動配置。\n2. {artifactName}縮小複製品展示物；依本件文物影像製作，實際材質與尺寸以出貨標示為準。\n\n文物資料：\n名稱：{artifactName}\n分類：{artifact.Category.Name}\n年代：{eraText}\n原文物尺寸：{originalSize}\n\n商品用途：\n{productNotice}\n\n來源與姓名標示：\n{attribution}\n\n原文物說明：\n{originalDescription}",
+        BundleSize,
         OrientationRule,
         price,
         20,
@@ -297,6 +307,28 @@ static ProductOutput CreateProduct(
         new PriceBreakdown(basePrice, midpointYear, ageYears, eraWeight, categoryWeight, variation, calculatedPrice, price));
 }
 
+static string CreateProductNotice(
+    string artifactName,
+    string? categoryName,
+    string? eraText,
+    string? originalSize)
+{
+    // 基礎說明只負責交代套組與文物身份；可用欄位逐句加入，缺值就省略，不把資料庫備註露給顧客。
+    var facts = new List<string>();
+    if (!string.IsNullOrWhiteSpace(categoryName))
+        facts.Add($"分類為{categoryName.Trim()}");
+    if (!string.IsNullOrWhiteSpace(eraText))
+        facts.Add($"年代記錄為{eraText.Trim()}");
+    if (!string.IsNullOrWhiteSpace(originalSize))
+        facts.Add($"原作尺寸為{originalSize.Trim()}");
+
+    var factSentence = facts.Count == 0
+        ? string.Empty
+        : $"資料記錄顯示，{string.Join('，', facts)}。";
+
+    return $"本套組以{artifactName}為對象，包含一張文物明信片與一件依原作影像製作的縮小複製品展示物。{factSentence}明信片正面呈現作品名稱、類型與主圖，背面整理原作尺寸與原文物說明；複製品的材質與製作尺寸以商品資訊為準。";
+}
+
 static MarketingCopy CreateMarketingCopy(Artifact artifact, int seed)
 {
     var name = artifact.Name.Trim();
@@ -304,60 +336,62 @@ static MarketingCopy CreateMarketingCopy(Artifact artifact, int seed)
     {
         "jade" => new[]
         {
-            $"先看{name}的輪廓、表面光澤與可見琢痕，再回到原作尺寸判斷實物大小；明信片只保留影像線索，不替資料補猜材質或用途。",
-            $"玉器的孔洞、紋飾與邊緣最適合放大比對。這張{name}文物明信片把主圖放在正面，背面另列原作尺寸與來源，查找時不會混在一起。",
-            $"觀看{name}時，可以把正面影像和圖鑑中的原作尺寸並排；明信片固定 A6，玉器本身的長寬高仍以文物資料為準。"
+            $"觀看{name}時，可先看輪廓、表面光澤與可見琢痕，再對照原作尺寸，分清影像細節與實物大小。",
+            $"孔洞、紋飾與邊緣的處理，是{name}很值得放大的地方；主圖用來認識外觀，原作資料則以圖鑑記錄為準。",
+            $"先看{name}的整體比例，再看表面留下的加工痕跡；明信片保留方便閱讀的主圖，原作尺寸另列。"
         },
         "bronze" => new[]
         {
-            $"青銅器先看器形、口沿、足部與紋飾，再看表面顏色是否可能受光線或保存狀態影響。{name}明信片背面保留來源，方便回到原圖核對。",
-            $"{name}的主圖適合先看整體輪廓，再放大局部紋飾與表面痕跡；明信片尺寸固定，不能拿來推算青銅器的實際大小。",
-            $"如果影像中看得到鑄造接縫、鏽蝕或紋飾，這些才是值得回查的線索。這張{name}文物明信片只整理可見內容，不把觀察寫成鑑定結論。"
+            $"看{name}時，可先從器形、口沿、足部與紋飾找線索，再回到原圖確認表面痕跡。",
+            $"{name}的主圖適合先看整體輪廓，再放大比較紋飾與表面狀態；照片上的色澤不直接等於材質結論。",
+            $"鑄造接縫、鏽蝕與紋飾位置都是{name}值得回查的細節；影像看不清楚的地方，就保留疑問。"
         },
         "ceramic" => new[]
         {
-            $"陶瓷先看器口、腹部、底足與釉面，再對照紋飾在器身上的位置。{name}文物明信片正面保留整體主圖，背面列原作尺寸，方便分清卡片與實物。",
-            $"{name}的釉色和輪廓是主圖裡最容易比較的兩項；若要判斷窯口、年代或工藝，仍應回到圖鑑來源，不以明信片代替研究資料。",
-            $"固定 A6 尺寸讓{name}適合放在書桌或展示架，但不代表原作也是同樣大小。商品頁把兩個尺寸分開列出，展示前先量空間比較準。"
+            $"觀看{name}時，可先確認器口、腹部、底足與釉面，再對照紋飾在器身上的位置。",
+            $"釉色和輪廓是{name}主圖裡最容易辨認的兩項；窯口、年代與工藝仍應回到來源資料核對。",
+            $"先看{name}的整體比例與器面裝飾，再放大局部釉色；明信片方便展示，不能取代原始影像。"
         },
         "enamel" => new[]
         {
-            $"琺瑯器可以先看色塊、邊線與裝飾區域的分界；{name}文物明信片保留主圖和基本來源，方便把可見色彩與原作資料分開核對。",
-            $"{name}的表面反光會受觀看角度和燈光影響，商品頁的主圖只是一個固定視角。背面列出來源與原作尺寸，避免把照片效果當成材質結論。",
-            $"觀看{name}時，先比較整體構圖，再看局部釉色與線條，比只用鮮豔或漂亮形容更容易回到實際影像。明信片成品固定為 A6。"
+            $"看{name}時，可先看色塊、邊線與裝飾區域如何分界，再回到原圖確認細節。",
+            $"{name}的反光會隨光線與角度改變；主圖呈現的是固定視角，色彩判讀仍以來源影像為準。",
+            $"先比較{name}的整體構圖，再看局部釉色與線條；少用漂亮形容，直接回到圖像細節。"
         },
         "lacquer" => new[]
         {
-            $"漆器主圖先看器形和表面光澤，再找可見的紋樣、刻痕或磨耗；{name}文物明信片把影像與原作尺寸分開呈現，適合拿來回查細節。",
-            $"漆面反光會隨角度改變，觀看{name}時最好不要只用一張照片判斷表面狀態。商品背面列來源與基本資訊，研究仍回到圖鑑原圖。",
-            $"{name}固定做成 A6 明信片，展示時可以靠近看圖，但不能由卡片比例推算漆器實物大小；原作尺寸會另外標示。"
+            $"觀看{name}時，可先看器形與表面光澤，再找紋樣、刻痕與磨耗留下的位置。",
+            $"{name}的漆面反光會隨觀看角度改變；主圖適合辨認構圖與表面線索，不單獨用來判定材質狀態。",
+            $"把{name}的整體輪廓和局部紋樣分開看，會比只看色澤更容易回到原始資料。"
         },
         "carving" => new[]
         {
-            $"雕刻品要看輪廓、轉折、刀痕與側面厚度；{name}文物明信片正面保留主圖，背面列原作尺寸，方便知道哪些是影像線索、哪些是實物尺度。",
-            $"若主圖能看到工具痕、磨耗或材料紋理，可以把位置記下來再回查資料；不要只用表面顏色推定材質或年代。這是{name}明信片的觀看重點。",
-            $"{name}的展示方向依主圖自然寬高判斷，長形作品不硬裁成正方形；成品仍固定為 A6 明信片，原作大小另列。"
+            $"觀看{name}時，可先看輪廓、轉折、刀痕與側面厚度，再比較不同區域的光影。",
+            $"看{name}時，若主圖呈現工具痕、磨耗或材料紋理，可記下位置回查來源；看不清楚的地方不補猜。",
+            $"長形或立體的{name}不適合只看正面；明信片保留主圖，細節仍要回到原始影像確認。"
         },
         "coin" => new[]
         {
-            $"錢幣先看正背面文字、穿孔、輪廓與邊緣磨耗，再回到圖鑑核對年代和版別；{name}文物明信片只呈現主圖，不把卡片尺寸當成錢幣實際大小。",
-            $"若{name}是方孔錢，穿孔形狀與錢文位置都值得比對；若主圖看不清楚，就保留疑問，不用一句「看起來像」代替資料。",
-            $"錢幣原作尺寸通常不大，但商品仍固定為 A6 明信片，方便閱讀正背面影像與來源；兩種尺寸在商品頁分開標示。"
+            $"觀看{name}時，可先看錢文、穿孔、輪廓與邊緣磨耗，再回到圖鑑核對年代和版別。",
+            $"如果{name}是方孔錢，穿孔形狀與錢文位置值得放大比較；影像不清楚的部分就保留疑問。",
+            $"錢幣原作與明信片尺寸差異很大，閱讀時應分開看實物尺寸與主圖比例；商品頁會另外列出原作資料。"
         },
         "painting" => new[]
         {
-            $"書畫先看完整構圖，再看題跋、鈐印、筆墨與留白；{name}是長幅作品時，明信片依主圖比例採橫式或直式，不把原圖硬裁成方形。",
-            $"{name}的正面保留主要畫面，背面列原作尺寸與來源；A6 是商品尺寸，不是畫冊或畫卷的實際長寬。需要細讀時仍應回到大圖。",
-            $"觀看書畫時，先確認畫面方向和題跋位置，再看局部線條。這張{name}文物明信片把名稱和類型放在正面，方便展示時辨認作品。"
+            $"觀看{name}時，可先看完整構圖，再看題跋、鈐印、筆墨與留白的關係。",
+            $"長幅作品先確認{name}的閱讀方向與題跋位置，再放大看局部線條；原作尺寸以圖鑑資料為準。",
+            $"明信片保留{name}的主要畫面，適合先認識構圖；需要細讀筆墨與鈐印，仍應回到原始大圖。"
         },
         _ => new[]
         {
-            $"{name}文物明信片正面使用來源圖像，背面列名稱、類型、原作尺寸與來源；成品固定為 A6，適合展示與回查，不替原作補寫沒有來源的結論。"
+            $"這張{name}文物明信片保留來源圖像，適合先看整體，再回到原始資料核對細節。",
+            $"觀看{name}時，可先從主圖辨認輪廓與裝飾，再以商品頁的原作尺寸和說明補足背景。",
+            $"{name}的明信片與縮小複製品放在同一套組內，方便收藏，也方便把看到的細節帶回圖鑑查找。"
         }
     };
 
     var index = (int)(StableNumber($"copy:{seed}:{artifact.ArtifactRef}") % templates.Length);
-    return new MarketingCopy($"{artifact.Category.Code.ToLowerInvariant()}-v2-{index + 1}", templates[index]);
+    return new MarketingCopy($"{artifact.Category.Code.ToLowerInvariant()}-v3-{index + 1}", templates[index]);
 }
 
 static Dictionary<string, string?> LoadArtifactSizes(string? path)
@@ -443,7 +477,8 @@ static string ApprovalToken(IReadOnlyCollection<ProductOutput> products, Options
 {
     var value = string.Join('\n', products
             .OrderBy(product => product.ExternalRef, StringComparer.Ordinal)
-            .Select(product => $"{product.ExternalRef}|{product.SizeText}|{product.PostcardOrientation}|{product.CopyTemplateId}"))
+            // 確認碼必須涵蓋實際會寫入資料庫的名稱、說明、價格與圖片，避免只審到尺寸就套用另一份內容。
+            .Select(product => $"{product.ExternalRef}|{product.Name}|{product.Description}|{product.SizeText}|{product.Price}|{product.PrimaryImagePath}|{product.PostcardOrientation}|{product.CopyTemplateId}"))
         + $"\n{options.Count}|{options.MinimumPrice}|{options.MaximumPrice}|{options.Seed}|{options.ReferenceYear}";
     return StableHex(value, 16);
 }
@@ -509,8 +544,8 @@ sealed record Options(
         從 QMAH 的 CC BY 4.0 文物建立課程示意商品。預設只輸出預覽 JSON，不修改資料庫。
 
           --count <數量|all>      商品數量，預設 all（每件合格文物各一件商品）
-          --min-price <整數>      最低示意價格，預設 300
-          --max-price <整數>      最高示意價格，預設 2200
+          --min-price <整數>      套組最低示意價格，預設 680
+          --max-price <整數>      套組最高示意價格，預設 1680
           --seed <整數>           固定亂數種子，預設 173
           --reference-year <年>   年代加權參考年，預設 2026
           --artifact-data <json>  含 artifactRef 與 sizeOriginal 的文物匯入 JSON
@@ -541,10 +576,10 @@ sealed record Options(
         }
 
         if (args.Length == 0 || args.Contains("--help"))
-            return new("", null, "", 0, 300, 2200, 173, 2026, false, false, "", true);
+            return new("", null, "", 0, 680, 1680, 173, 2026, false, false, "", true);
 
-        var minimumPrice = Number("--min-price", 300, 1, 1_000_000);
-        var maximumPrice = Number("--max-price", 2200, 1, 1_000_000);
+        var minimumPrice = Number("--min-price", 680, 1, 1_000_000);
+        var maximumPrice = Number("--max-price", 1680, 1, 1_000_000);
         if (minimumPrice > maximumPrice)
             throw new ArgumentException("--min-price 不可大於 --max-price。");
 
