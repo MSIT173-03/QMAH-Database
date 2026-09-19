@@ -6,7 +6,14 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.9.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.0)。Release 提供與 `db-v0.9.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.9.0.bak`、`0.8.0-to-0.9.0.sql` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.9.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.2)。Release 提供與 `db-v0.9.2` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.9.2.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+
+### db-v0.9.2 更新內容
+
+- 文物、題庫與相關年代資料重新建立為 512 件；舊的 256 件展示文物不保留，八類分布與 18 個年代桶已一併寫入同一份 Snapshot。
+- 商城同步建立 512 件「文物明信片」，商品保留原文物尺寸，另以固定 A6（148 × 105 mm）標示明信片尺寸與橫／直向資訊。
+- 保留既有會員、社群、優惠券與鑰匙資料，並以目前有效優惠券建立官方活動展示資料；另產生跨會員的訂單、付款、評論、點數與鑰匙流水供整合驗證。
+- 媒體與商品路徑和 `QMAH-develop/develop` 同步，列表與明信片詳情使用各自的媒體尺寸；正式部署可依文件將媒體拆出至 CDN。
 
 ## Repository 內容
 
@@ -227,4 +234,4 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
-目前 Repository 版本入口為 [db-v0.8.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.8.0)。既有 `db-v0.7.0` 可執行 [`database/upgrades/0.7.0-to-0.8.0.sql`](database/upgrades/0.7.0-to-0.8.0.sql) 保留資料升級。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+目前 Repository 版本入口為 [db-v0.9.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.2)。本版刻意替換展示用文物與商品資料，不提供會保留舊 256 件資料的增量升級腳本；既有環境請以 `QMAH.sql` 或 `QMAH-0.9.2.bak` 建立／還原完整 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
