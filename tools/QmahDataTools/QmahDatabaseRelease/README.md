@@ -59,6 +59,8 @@ pwsh -File .\tools\QmahDataTools\Export-ReferenceDatabase.ps1 -Version 0.7.1
 
 如果資料庫目前有啟用且尚未結束的 `CouponDefinitions`，工具會把前幾筆優惠券條件轉成 `SocialPosts` 的 `ANNOUNCEMENT`／`OFFICIAL` 商城優惠活動，使用 `STORE` 看板。商城的 `/api/v1/store/promotions` 直接讀這些公告的標題、本文與發布日期，因此社群公告與商城展示不會各自維護一份文案；真正折抵仍由結帳流程重新驗證優惠券定義。
 
+社群展示文章會由 `ShowcaseDataCommands` 依固定素材產生。產生前會排除評審、前台、資料表與批次工具等內部檢討句；產生後會去掉展示用框選引號，並讓留言回應文章中的具體觀察。這些清理只作用於展示貼文與評論，不改動圖鑑內的原始名稱與原始說明。重跑本版後 `social.SocialPosts=314`、`social.SocialComments=728`。
+
 ```text
 --activity-days <0-3650>
 --point-transaction-count <0-10000>

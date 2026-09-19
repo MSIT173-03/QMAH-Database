@@ -862,10 +862,26 @@ public static class ShowcaseDataCommands
         new("GENERAL", "閱讀心得", "CUSTOM", "我希望最後的社群是一個真的有故事、有資料、有活動、有遊戲和有收藏經驗的內容入口", "每一篇文章都從一件具體的事情開始，互相連結時不失去自己的邊界，讀者也不用理解內部鍵值才能使用。內容夠豐富，關聯夠可靠，未來前台就能從這裡開始長出完整的閱讀體驗。")
     ];
 
+    private static readonly IReadOnlyList<string> InternalStoryMarkers =
+    [
+        "評審", "組員", "前台", "後台", "資料庫", "資料表", "資料層", "內部鍵值", "內部資料",
+        "展示資料", "批次產生", "模板", "功能說明", "功能介紹", "網站背景", "後續開發", "API",
+        "頁面塞滿", "系統", "這批內容", "這批文字", "交給前台"
+    ];
+
     // 目前工具可產生的展示貼文上限為 512 篇；固定素材數量高於這個上限，
     // 因此同一輪產生資料時不需要循環重用文章，也不會把隨機片段拼成不自然的內容。
+    // 另外排除談評審、前台或資料表的內部檢討句；那是開發筆記，不是會員會發布的文章。
     private static readonly IReadOnlyList<CommunityStory> CommunityStories =
-        CommunityStoriesPartOne.Concat(CommunityStoriesPartTwo).ToArray();
+        CommunityStoriesPartOne
+            .Concat(CommunityStoriesPartTwo)
+            .Where(IsReaderFacingStory)
+            .ToArray();
+
+    private static bool IsReaderFacingStory(CommunityStory story) =>
+        !InternalStoryMarkers.Any(marker =>
+            story.Title.Contains(marker, StringComparison.OrdinalIgnoreCase)
+            || story.Content.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     public static async Task GenerateAsync(
         string connection,
@@ -1115,8 +1131,9 @@ public static class ShowcaseDataCommands
             post.PostType = draft.PostType;
             post.PublisherType = draft.PublisherType;
             post.ContentMode = draft.ContentMode;
-            post.Title = Trim(draft.Title, 150);
-            post.Content = Trim(draft.Content, 4000);
+            // 社群是對外閱讀內容；去掉產生器為了區隔欄位而加的裝飾引號，避免文章像系統範例資料。
+            post.Title = Trim(NormalizeGeneratedCopy(draft.Title), 150);
+            post.Content = Trim(NormalizeGeneratedCopy(draft.Content), 4000);
             post.LocationName = location?.Name;
             post.Latitude = location?.Latitude;
             post.Longitude = location?.Longitude;
@@ -1169,7 +1186,9 @@ public static class ShowcaseDataCommands
                 comment.PostId = generatedPost.Post.Id;
                 comment.ParentCommentId = slot == 1 ? null : firstId;
                 comment.UserId = author.Id;
-                comment.Content = Trim(BuildComment(generatedPost, generatedPost.Index, slot), 2000);
+                comment.Content = Trim(
+                    NormalizeGeneratedCopy(BuildComment(generatedPost, generatedPost.Index, slot)),
+                    2000);
                 comment.Status = generatedPost.Post.Status == "DELETED" ? "HIDDEN" : "PUBLISHED";
                 comment.CreatedAt = createdAt.AddMinutes((slot - 1) * 9);
                 comment.UpdatedAt = comment.CreatedAt;
@@ -1375,9 +1394,10 @@ public static class ShowcaseDataCommands
             review.UserId = memberId;
             review.Rating = (byte)(1 + (int)(StableNumber($"review-rating:{seed}:{index}") % 5));
             review.Content = Trim(
+                NormalizeGeneratedCopy(
                 ProductReviewTexts[(index - 1) % ProductReviewTexts.Count]
                     .Replace("{product}", product.Name.Trim(), StringComparison.Ordinal)
-                    .Replace("{artifact}", product.Artifact?.Name.Trim() ?? "這件文物", StringComparison.Ordinal),
+                    .Replace("{artifact}", product.Artifact?.Name.Trim() ?? "這件文物", StringComparison.Ordinal)),
                 1000);
             review.Status = index % 29 == 0 ? "DELETED" : index % 17 == 0 ? "HIDDEN" : "PUBLISHED";
             review.CreatedAt = createdAt;
@@ -1755,13 +1775,11 @@ public static class ShowcaseDataCommands
             ? BuildCouponPromotion(coupon)
             : variant switch
         {
-            0 => $"為了讓圖鑑、社群、遊戲與商城的展示資料可以互相對照，近期整理時會優先保留文物的原始名稱、來源、年代文字與尺寸記錄。需要推測的內容請另外標示，不會把暫時假設直接改成確定答案。\n\n目前這批展示資料共安排 {postCount} 篇不同主題的內容，社群貼文會盡可能連回實際文物；商城訂單則只會使用與文物有直接關聯的文物明信片商品。若發現欄位需要補充，請在貼文中說明可以回查的依據。",
-1 => "閱讀文物時，建議先看完整影像與基本資料，再放大局部細節。來源網址、授權標示、外部編號與故宮編號各自有不同用途，請不要為了簡短而混成同一個欄位。\n\n社群貼文可以選擇討論分類，也可以連結特定文物；公告則是官方發布的特殊貼文類型。這樣前台日後能用同一套貼文流程呈現不同內容，不需要另外維護一個獨立公告頁。",
-            2 => "這次展示資料會同時保留可讀的內容與可以追查的關聯：文物連到題庫，文物也可對應商城文物明信片；會員、貼文、留言、訂單與活動則依實際外鍵互相連結。\n\n如果資料目前不足以支持單一年份、精確用途或材質判斷，會保留原始範圍並寫明待查原因。這是為了讓展示內容看起來完整時，仍然不超過來源能證明的程度。",
-            _ => "社群討論歡迎從器形、材質、紋飾、保存、來源與觀看經驗切入。長文請用段落說明觀察順序，並在引用外部資料時留下出處；若只是個人推測，也請用容易辨識的語氣說明。\n\n後續前台可以沿用這些分類、文物關聯、地點欄位與官方發布狀態，讓使用者既能手動輸入內容，也能在需要時直接從地圖或文物資料開始建立貼文。"
+            0 => "讀文物時先保留完整影像，再放大局部細節；尺寸、來源、年代與授權各自有用途，不要只用一個醒目的線索替代整件作品的資料。若目前只能確認範圍，就照原始記錄保留範圍，待找到來源後再補充。",
+            1 => "看一件作品可以先從輪廓開始，再回頭讀文字和來源。照片角度、展場光線與保存狀態都可能影響第一印象；把這些條件寫下來，之後和別人比較時才知道差異從哪裡來。",
+            2 => "圖鑑、題庫、社群與商城可以互相引導，但每一種資料都有自己的用途。作品資料用來查證，遊戲用來練習觀察，文物明信片與縮小複製品套組則把喜歡的作品帶到日常；不要把其中一種當成另一種的替代品。",
+            _ => "社群討論可以從器形、材質、紋飾、保存、來源或觀看經驗開始。分享時請說明自己看見的位置與資料來源；如果只是推測，也直接說明還缺哪一段證據，討論才有辦法接著往下走。"
         };
-        content += $"\n\n本則公告聚焦「{title}」，方便之後從社群分類回看相關脈絡。";
-
         return new GeneratedPostDraft(
             coupon is not null ? "STORE" : variant % 2 == 0 ? "GENERAL" : "GUIDE",
             "ANNOUNCEMENT",
@@ -1789,7 +1807,7 @@ public static class ShowcaseDataCommands
         var start = coupon.StartAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.InvariantCulture);
         var end = coupon.EndAt.ToLocalTime().ToString("yyyy/MM/dd", CultureInfo.InvariantCulture);
 
-        return $"商城目前整理一檔「{displayName}」優惠活動：{discount}，{minimum}。活動期間為 {start} 至 {end}，{acquisition}。\n\n取得優惠券後，可在結帳時套用於符合條件的文物明信片訂單；有效天數為 {coupon.ValidityDays} 天，實際可用狀態、使用期限與折抵金額仍以商城 API 在下單當下的檢查結果為準。\n\n這是依目前優惠券定義產生的展示資料，方便會員先了解活動內容；後續前台若改成正式活動版面，仍應直接讀取同一份優惠券資料，不要另外寫死折扣數字。";
+        return $"商城優惠活動：{displayName}\n優惠內容：{discount}\n使用條件：{minimum}\n活動期間：{start} 至 {end}\n取得方式：{acquisition}\n\n優惠券取得後，可在結帳時套用於符合條件的文物明信片與縮小複製品套組；有效天數為 {coupon.ValidityDays} 天。實際可用狀態、使用期限與折抵金額，以下單當下的商城檢查結果為準。想把喜歡的文物帶回日常時，可以先從圖鑑確認原作，再回到商品頁查看套組內容。";
     }
 
     private static string GetCouponDisplayName(CouponDefinition coupon) =>
@@ -1810,12 +1828,13 @@ public static class ShowcaseDataCommands
                 : slot == 2
                     ? "如果之後有地圖選點，我會希望文字地址仍然保留，這樣在不同裝置或地圖載入較慢時也能看懂集合位置。"
                     : "若是第一次到場，我還會先確認入口、樓層和報到方式；這些細節不一定適合塞進標題，但對真正要參加的人很重要。",
+            // 回應要接住文章中的具體觀察，不再用固定的共鳴句把每篇文章寫成同一個樣子。
             GeneratedPostKind.Community => slot switch
             {
-                1 => $"我也很有共鳴，尤其是「{Trim(post.Post.Title, 36)}」這個細節；讀完會想起自己在展場或整理照片時遇到的類似情況。",
+                1 => $"你把{Trim(post.Post.Title, 36)}寫成具體的觀看經過，而不是只留下好不好看的結論；我也遇過類似情況，最有用的是把當時的角度和後來查到的資料一起留下。",
                 2 => name is null
                     ? "你把看見的地方和還沒有把握的部分分開寫，讀起來很舒服，也讓人知道可以從哪裡接著聊。"
-                    : $"你提到「{name}」時沒有只留一句好看，而是把觀看的條件和自己的想法說出來，這樣比較容易一起核對。",
+                    : $"你提到{name}時沒有只留一句好看，而是把觀看的條件和自己的想法說出來，這樣比較容易一起核對。",
                 _ => "我下次遇到相近的作品或情況，會先照你寫的順序看一次；如果找到不同資料，再回來補充自己看到的差異。"
             },
             GeneratedPostKind.Announcement => slot == 1
@@ -1847,6 +1866,14 @@ public static class ShowcaseDataCommands
 
     private static string NormalizeWhitespace(string value) =>
         string.Join(' ', value.Replace('\r', ' ').Replace('\n', ' ').Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+
+    private static string NormalizeGeneratedCopy(string value)
+    {
+        // 這是展示文案的清理，不改動 catalog 原始名稱與原始說明；社群與評論不需要額外的框選引號。
+        return value
+            .Replace("「", string.Empty, StringComparison.Ordinal)
+            .Replace("」", string.Empty, StringComparison.Ordinal);
+    }
 
     private static string Trim(string value, int maxLength) =>
         value.Length <= maxLength ? value : value[..Math.Max(0, maxLength - 1)] + "…";
