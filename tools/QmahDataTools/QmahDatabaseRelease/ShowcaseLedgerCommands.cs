@@ -16,6 +16,7 @@ namespace QMAH.DataTools;
 public static class ShowcaseLedgerCommands
 {
     public const string GeneratedReferenceType = "SHOWCASE_GENERATED";
+    private const string GeneratedUnlockReferenceType = "SHOWCASE_ARTIFACT_UNLOCK";
 
     private const string LoginActivityType = "LOGIN";
     private const string CheckInActivityType = "CHECK_IN";
@@ -48,6 +49,7 @@ public static class ShowcaseLedgerCommands
         var activity = await UpsertDailyActivitiesAsync(db, users, activityDays, seed, now);
         var pointCount = await UpsertPointTransactionsAsync(db, users, pointTransactionCount, seed, now);
         var keyCount = await UpsertKeyTransactionsAsync(db, users, keyTransactionCount, seed, now);
+        var artifactUnlockCount = await UpsertArtifactUnlocksAsync(db, users, seed, now);
         var keyProgressCount = await UpsertKeyProgressTransactionsAsync(
             db, users, keyProgressTransactionCount, seed, now);
         var achievementCount = await UpsertLoginAchievementsAsync(
@@ -59,6 +61,7 @@ public static class ShowcaseLedgerCommands
             activity.CheckInCount,
             pointCount,
             keyCount,
+            artifactUnlockCount,
             keyProgressCount,
             achievementCount);
     }
@@ -303,6 +306,109 @@ public static class ShowcaseLedgerCommands
         }
 
         return drafts.Count;
+    }
+
+    private static async Task<int> UpsertArtifactUnlocksAsync(
+        QmahDbContext db,
+        IReadOnlyList<ShowcaseUser> users,
+        int seed,
+        DateTime now)
+    {
+        var userIds = users.Select(user => user.Id).ToArray();
+        var eraKeys = await db.KeyDefinitions
+            .AsNoTracking()
+            .Where(key => key.IsActive && key.ScopeType == "ERA" && key.EraBucketId != null)
+            .OrderBy(key => key.Code)
+            .ToListAsync();
+        var artifacts = await db.Artifacts
+            .AsNoTracking()
+            .Where(artifact => artifact.IsActive)
+            .OrderBy(artifact => artifact.ArtifactRef)
+            .ToListAsync();
+        if (eraKeys.Count == 0 || artifacts.Count == 0)
+            return 0;
+
+        var existingGenerated = await db.ArtifactUnlocks
+            .Include(unlock => unlock.KeyTransaction)
+            .Where(unlock => userIds.Contains(unlock.UserId)
+                && unlock.KeyTransaction != null
+                && unlock.KeyTransaction.ReferenceType == GeneratedUnlockReferenceType)
+            .ToListAsync();
+        var existingIds = existingGenerated.Select(unlock => unlock.Id).ToHashSet();
+        var existingPairs = await db.ArtifactUnlocks
+            .Where(unlock => userIds.Contains(unlock.UserId))
+            .Select(unlock => new { unlock.UserId, unlock.ArtifactId })
+            .ToListAsync();
+        var usedPairs = existingPairs
+            .Select(pair => new UserArtifact(pair.UserId, pair.ArtifactId))
+            .ToHashSet();
+        var balances = await db.UserKeyBalances
+            .Where(balance => userIds.Contains(balance.UserId))
+            .ToDictionaryAsync(balance => new UserKey(balance.UserId, balance.KeyDefinitionId));
+        var artifactsByEra = artifacts
+            .GroupBy(artifact => artifact.EraBucketId)
+            .ToDictionary(group => group.Key, group => group.ToArray());
+        var added = 0;
+        var targetCount = eraKeys.Count;
+
+        for (var index = 0; index < targetCount; index++)
+        {
+            var key = eraKeys[index];
+            if (key.EraBucketId is not Guid eraId
+                || !artifactsByEra.TryGetValue(eraId, out var eraArtifacts))
+            {
+                continue;
+            }
+
+            var user = users.FirstOrDefault(candidate =>
+                balances.TryGetValue(new UserKey(candidate.Id, key.Id), out var candidateBalance)
+                && candidateBalance.Balance > 0);
+            if (user.Id == Guid.Empty)
+                continue;
+
+            var artifact = eraArtifacts.FirstOrDefault(item => !usedPairs.Contains(new UserArtifact(user.Id, item.Id)));
+            var balanceKey = new UserKey(user.Id, key.Id);
+            if (artifact is null
+                || !balances.TryGetValue(balanceKey, out var balance)
+                || balance.Balance < 1)
+            {
+                continue;
+            }
+
+            var unlockId = StableGuid($"showcase-unlock:{seed}:{index}");
+            if (existingIds.Contains(unlockId))
+                continue;
+
+            var keyTransactionId = StableGuid($"showcase-unlock-key:{seed}:{index}");
+            db.KeyTransactions.Add(new KeyTransaction
+            {
+                Id = keyTransactionId,
+                UserId = user.Id,
+                KeyDefinitionId = key.Id,
+                Amount = -1,
+                Reason = "展示資料：使用年代鑰匙解鎖圖鑑",
+                ReferenceType = GeneratedUnlockReferenceType,
+                ReferenceId = unlockId,
+                CreatedAt = GeneratedAt(now, $"showcase-unlock-date:{seed}:{index}")
+            });
+            db.ArtifactUnlocks.Add(new ArtifactUnlock
+            {
+                Id = unlockId,
+                UserId = user.Id,
+                ArtifactId = artifact.Id,
+                // UnlockMethod 是固定的來源類型；實際使用哪一把鑰匙由 KeyTransactionId 追溯，不能直接塞入鑰匙代碼。
+                UnlockMethod = "KEY",
+                KeyTransactionId = keyTransactionId,
+                UnlockedAt = GeneratedAt(now, $"showcase-unlock-date:{seed}:{index}")
+            });
+            balance.Balance--;
+            balance.UpdatedAt = now;
+            usedPairs.Add(new UserArtifact(user.Id, artifact.Id));
+            added++;
+        }
+
+        // 展示流水要和解鎖事實一起寫入，讓前台查到的來源、鑰匙扣除與解鎖紀錄能互相追溯。
+        return added;
     }
 
     private static async Task<int> UpsertKeyProgressTransactionsAsync(
@@ -648,6 +754,7 @@ public static class ShowcaseLedgerCommands
     private readonly record struct ShowcaseUser(Guid Id, string Email);
     private readonly record struct ActivityKey(Guid UserId, string ActivityType, DateOnly ActivityDate);
     private readonly record struct UserKey(Guid UserId, Guid KeyDefinitionId);
+    private readonly record struct UserArtifact(Guid UserId, Guid ArtifactId);
     private readonly record struct UserAchievementKey(Guid UserId, Guid AchievementId);
 
     private sealed record DailyActivityDraft(
@@ -683,5 +790,6 @@ public sealed record ShowcaseLedgerResult(
     int CheckInActivityCount,
     int PointTransactionCount,
     int KeyTransactionCount,
+    int ArtifactUnlockCount,
     int KeyProgressTransactionCount,
     int LoginAchievementCount);

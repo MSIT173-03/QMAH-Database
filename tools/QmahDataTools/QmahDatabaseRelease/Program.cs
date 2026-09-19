@@ -112,7 +112,7 @@ internal static class DatabaseReleaseProgram
                     await ledgerDb.SaveChangesAsync();
                     await ledgerTransaction.CommitAsync();
                     Console.WriteLine(
-                        $"SHOWCASE_LEDGER_GENERATED|daily-activities:{ledgerResult.DailyActivityCount}|login-activities:{ledgerResult.LoginActivityCount}|check-in-activities:{ledgerResult.CheckInActivityCount}|point-transactions:{ledgerResult.PointTransactionCount}|key-transactions:{ledgerResult.KeyTransactionCount}|key-progress-transactions:{ledgerResult.KeyProgressTransactionCount}|login-achievements:{ledgerResult.LoginAchievementCount}");
+                        $"SHOWCASE_LEDGER_GENERATED|daily-activities:{ledgerResult.DailyActivityCount}|login-activities:{ledgerResult.LoginActivityCount}|check-in-activities:{ledgerResult.CheckInActivityCount}|point-transactions:{ledgerResult.PointTransactionCount}|key-transactions:{ledgerResult.KeyTransactionCount}|artifact-unlocks:{ledgerResult.ArtifactUnlockCount}|key-progress-transactions:{ledgerResult.KeyProgressTransactionCount}|login-achievements:{ledgerResult.LoginAchievementCount}");
                     break;
                 }
                 default:

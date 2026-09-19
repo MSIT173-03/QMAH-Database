@@ -18,6 +18,7 @@
 - 媒體與商品路徑和 `QMAH-develop/develop` 同步，列表與明信片詳情使用各自的媒體尺寸；正式部署可依文件將媒體拆出至 CDN。
 - 修正展示資料產生器，依目前 `ProductId` 同步既有訂單明細的商品名稱快照，避免歷史展示訂單仍顯示舊的「縮小複製品」文字。
 - 補上新增 `JAPAN_EDO` 年代的 `KEY-ERA-JAPAN_EDO` 解鎖鑰匙，並重新產生對應的會員鑰匙餘額與流水資料。
+- `catalog.ArtifactUnlocks` 已補入 13 筆可追溯的展示解鎖紀錄，透過 `KeyTransactionId` 對應鑰匙扣除流水；同時為商城、遊戲、社群、公告、通知與稱號流程補入最小可驗證的業務資料。Identity claims、外部登入與 token 表仍保持空白，避免捏造不具部署意義的認證資料。
 
 ## Repository 內容
 
