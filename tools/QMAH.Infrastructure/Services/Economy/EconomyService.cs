@@ -338,84 +338,127 @@ public sealed class EconomyService(QmahDbContext db)
 
     /// <summary>以增減量調整會員點數；不接受直接指定餘額，且每次都建立點數流水。</summary>
     public async Task<EconomyResult<BalanceAdjustmentView>> AdjustPointsAsync(
+        Guid adminUserId,
         Guid userId,
         int amount,
         string reason,
-        string referenceType = "ADMIN_ADJUSTMENT",
         CancellationToken cancellationToken = default)
     {
+        if (adminUserId == Guid.Empty)
+            return EconomyResult<BalanceAdjustmentView>.Invalid("找不到執行異動的管理員。");
         var reasonResult = ValidateReason(reason);
         if (reasonResult is not null)
             return EconomyResult<BalanceAdjustmentView>.Invalid(reasonResult);
         if (amount == 0)
             return EconomyResult<BalanceAdjustmentView>.Invalid("點數調整不可為 0。");
 
-        await using var transaction = await db.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
-            cancellationToken);
-        var balance = await GetOrCreatePointBalanceAsync(userId, cancellationToken);
-        var nextBalance = balance.Balance + (long)amount;
-        if (nextBalance < 0 || nextBalance > int.MaxValue)
-            return EconomyResult<BalanceAdjustmentView>.Conflict("點數餘額不可小於 0 或超過系統上限。");
-        var now = DateTime.UtcNow;
-        balance.Balance = (int)nextBalance;
-        balance.UpdatedAt = now;
-        db.PointTransactions.Add(new PointTransaction
+        // 固定流水 ID 讓提交結果不明時的重試可以辨識前次操作，避免人工調整重複入帳。
+        var pointTransactionId = Guid.NewGuid();
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async retryCancellationToken =>
         {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Amount = amount,
-            Reason = reason.Trim(),
-            ReferenceType = referenceType,
-            CreatedAt = now
-        });
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, balance.Balance));
+            db.ChangeTracker.Clear();
+            if (await db.PointTransactions.AsNoTracking()
+                .AnyAsync(item => item.Id == pointTransactionId, retryCancellationToken))
+            {
+                var committedBalance = await db.PointBalances.AsNoTracking()
+                    .Where(item => item.UserId == userId)
+                    .Select(item => item.Balance)
+                    .SingleAsync(retryCancellationToken);
+                return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, committedBalance));
+            }
+
+            await using var transaction = await db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable,
+                retryCancellationToken);
+            var balance = await GetOrCreatePointBalanceAsync(userId, retryCancellationToken);
+            var nextBalance = balance.Balance + (long)amount;
+            if (nextBalance < 0 || nextBalance > int.MaxValue)
+                return EconomyResult<BalanceAdjustmentView>.Conflict("點數餘額不可小於 0 或超過系統上限。");
+            var now = DateTime.UtcNow;
+            balance.Balance = (int)nextBalance;
+            balance.UpdatedAt = now;
+            db.PointTransactions.Add(new PointTransaction
+            {
+                Id = pointTransactionId,
+                UserId = userId,
+                Amount = amount,
+                Reason = reason.Trim(),
+                ReferenceType = "ADMIN_ADJUSTMENT",
+                CreatedByAdminUserId = adminUserId,
+                CreatedAt = now
+            });
+            await db.SaveChangesAsync(retryCancellationToken);
+            await transaction.CommitAsync(retryCancellationToken);
+            return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, balance.Balance));
+        }, cancellationToken);
     }
 
     /// <summary>以增減量調整會員指定類型的鑰匙；每次都建立鑰匙流水。</summary>
     public async Task<EconomyResult<BalanceAdjustmentView>> AdjustKeysAsync(
+        Guid adminUserId,
         Guid userId,
         Guid keyDefinitionId,
         int amount,
         string reason,
-        string referenceType = "ADMIN_ADJUSTMENT",
         CancellationToken cancellationToken = default)
     {
+        if (adminUserId == Guid.Empty)
+            return EconomyResult<BalanceAdjustmentView>.Invalid("找不到執行異動的管理員。");
         var reasonResult = ValidateReason(reason);
         if (reasonResult is not null)
             return EconomyResult<BalanceAdjustmentView>.Invalid(reasonResult);
         if (amount == 0)
             return EconomyResult<BalanceAdjustmentView>.Invalid("鑰匙調整不可為 0。");
 
-        await using var transaction = await db.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
-            cancellationToken);
-        var key = await db.KeyDefinitions
-            .SingleOrDefaultAsync(item => item.Id == keyDefinitionId && item.IsActive, cancellationToken);
-        if (key is null)
-            return EconomyResult<BalanceAdjustmentView>.NotFound("找不到啟用中的鑰匙定義。");
-        var balance = await GetOrCreateKeyBalanceAsync(userId, keyDefinitionId, cancellationToken);
-        var nextBalance = balance.Balance + (long)amount;
-        if (nextBalance < 0 || nextBalance > int.MaxValue)
-            return EconomyResult<BalanceAdjustmentView>.Conflict("鑰匙餘額不可小於 0 或超過系統上限。");
-        var now = DateTime.UtcNow;
-        balance.Balance = (int)nextBalance;
-        balance.UpdatedAt = now;
-        db.KeyTransactions.Add(new KeyTransaction
+        // 同一個識別碼會跨重試沿用；若提交成功後連線才中斷，重試可辨識前次已完成，避免重複加扣。
+        var keyTransactionId = Guid.NewGuid();
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async retryCancellationToken =>
         {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            KeyDefinitionId = keyDefinitionId,
-            Amount = amount,
-            Reason = reason.Trim(),
-            ReferenceType = referenceType,
-            CreatedAt = now
-        });
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, balance.Balance));
+            db.ChangeTracker.Clear();
+            var alreadyCommitted = await db.KeyTransactions
+                .AsNoTracking()
+                .AnyAsync(item => item.Id == keyTransactionId, retryCancellationToken);
+            if (alreadyCommitted)
+            {
+                var committedBalance = await db.UserKeyBalances
+                    .AsNoTracking()
+                    .Where(item => item.UserId == userId && item.KeyDefinitionId == keyDefinitionId)
+                    .Select(item => item.Balance)
+                    .SingleAsync(retryCancellationToken);
+                return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, committedBalance));
+            }
+
+            await using var transaction = await db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable,
+                retryCancellationToken);
+            var key = await db.KeyDefinitions
+                .SingleOrDefaultAsync(item => item.Id == keyDefinitionId && item.IsActive, retryCancellationToken);
+            if (key is null)
+                return EconomyResult<BalanceAdjustmentView>.NotFound("找不到啟用中的鑰匙定義。");
+            var balance = await GetOrCreateKeyBalanceAsync(userId, keyDefinitionId, retryCancellationToken);
+            var nextBalance = balance.Balance + (long)amount;
+            if (nextBalance < 0 || nextBalance > int.MaxValue)
+                return EconomyResult<BalanceAdjustmentView>.Conflict("鑰匙餘額不可小於 0 或超過系統上限。");
+            var now = DateTime.UtcNow;
+            balance.Balance = (int)nextBalance;
+            balance.UpdatedAt = now;
+            db.KeyTransactions.Add(new KeyTransaction
+            {
+                Id = keyTransactionId,
+                UserId = userId,
+                KeyDefinitionId = keyDefinitionId,
+                Amount = amount,
+                Reason = reason.Trim(),
+                ReferenceType = "ADMIN_ADJUSTMENT",
+                CreatedByAdminUserId = adminUserId,
+                CreatedAt = now
+            });
+            await db.SaveChangesAsync(retryCancellationToken);
+            await transaction.CommitAsync(retryCancellationToken);
+            return EconomyResult<BalanceAdjustmentView>.Success(new BalanceAdjustmentView(amount, balance.Balance));
+        }, cancellationToken);
     }
 
     /// <summary>使用鑑定點數兌換一張 POINT_EXCHANGE 優惠券，期限從本次取得時間起算。</summary>
@@ -513,6 +556,8 @@ public sealed class EconomyService(QmahDbContext db)
         string reason,
         CancellationToken cancellationToken = default)
     {
+        if (adminUserId == Guid.Empty)
+            return EconomyResult<CouponView>.Invalid("找不到執行發放的管理員。");
         if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length > 200)
             return EconomyResult<CouponView>.Invalid("發放原因必須填寫且不可超過 200 個字元。");
 
@@ -551,6 +596,8 @@ public sealed class EconomyService(QmahDbContext db)
         string reason,
         CancellationToken cancellationToken = default)
     {
+        if (adminUserId == Guid.Empty)
+            return EconomyResult<CouponView>.Invalid("找不到執行撤銷的管理員。");
         if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length > 200)
             return EconomyResult<CouponView>.Invalid("撤銷原因必須填寫且不可超過 200 個字元。");
         var coupon = await db.UserCoupons
