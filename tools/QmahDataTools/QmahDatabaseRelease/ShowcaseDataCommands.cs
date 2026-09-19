@@ -1686,10 +1686,10 @@ public static class ShowcaseDataCommands
         };
         var nextStep = variant switch
         {
-            0 => "下一次我想測試先給完整圖像、後補文字提示，看看玩家是否能更自然地說明自己的觀察。",
+            0 => "下一次我會先看完整圖像，再補文字提示，看看自己能不能更完整地說明觀察。",
             1 => "如果有其他玩家一起回顧，我會請大家指出各自最早注意到的線索，再比較哪些線索真的能回到圖鑑資料。",
             2 => "這樣的回顧也適合保留成個人學習紀錄，讓玩家看到自己長期在哪一類題目上容易過早下結論。",
-            3 => "題目說明也可以補上作答規則與剩餘時間，讓玩家把注意力放在推理，而不是猜系統下一步會怎麼做。",
+            3 => "題目說明先交代作答規則與剩餘時間，玩家就能把注意力放在推理，不必猜下一步流程。",
             4 => "若要讓討論延續到社群，我會把不同答案的理由整理出來，再連回對應的圖鑑欄位，而不是只公布一個結果。",
             _ => "這些資料不需要被包裝成正式研究結論，但可以作為下一次出題、調整提示和設計新手教學的實際依據。"
         };
@@ -1744,7 +1744,8 @@ public static class ShowcaseDataCommands
         var eventType = eventData.EventType == "OFFICIAL" ? "官方活動" : "會員活動";
         var start = eventData.StartAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
         var location = string.IsNullOrWhiteSpace(eventData.Location) ? "線上活動" : eventData.Location.Trim();
-        var content = $"這篇貼文對應活動資料「{eventData.Title}」，活動性質為{eventType}。活動時間是 {start}，地點為「{location}」。活動內容、審核與報名狀態仍以活動資料為準，貼文提供的是社群閱讀入口。\n\n{NormalizeWhitespace(eventData.Content)}\n\n有興趣的會員可以先查看活動時間、名額與報名截止日，再決定是否參加；管理者若要修改流程，請回到活動管理處理，避免只改貼文文字造成兩邊資訊不一致。";
+        // 活動貼文只交代參加者需要的資訊；管理流程留在後台，不把內部操作寫給會員看。
+        var content = $"這篇貼文介紹{eventType}{eventData.Title}。活動時間是 {start}，地點為 {location}。正式時間、名額與報名狀態，請以活動頁最新資訊為準。\n\n{NormalizeWhitespace(eventData.Content)}\n\n如果想參加，可以先確認活動日期、到場位置與報名截止日；活動結束後也歡迎回來分享現場看到的作品與問題。";
 
         return new GeneratedPostDraft(
             "EVENTS",
@@ -1840,7 +1841,7 @@ public static class ShowcaseDataCommands
             GeneratedPostKind.Announcement => slot == 1
                 ? "這則公告把資料整理的原則交代得很清楚，尤其是來源、推測和平台資料要分開保存，後續查閱會安心很多。"
                 : slot == 2
-                    ? "如果前台之後提供更多互動，我希望仍然可以直接回到對應的文物、活動或訂單脈絡，而不是只看到一段沒有來源的文字。"
+                    ? "讀完公告後，我希望仍然可以直接回到對應的文物、活動或訂單脈絡，而不是只看到一段沒有來源的文字。"
                     : "這種原則也能幫忙檢查展示資料是否過度延伸；看起來豐富的內容，仍然要讓人知道哪些是原始記錄、哪些是社群整理。",
             _ => slot == 1
                 ? (index % 4) switch
