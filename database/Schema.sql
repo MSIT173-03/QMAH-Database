@@ -298,6 +298,8 @@ BEGIN TRANSACTION;
         [Description] nvarchar(max) NULL,
         [SizeText] nvarchar(500) NULL,
         [Price] decimal(12,2) NOT NULL,
+        [DiscountRate] decimal(5,2) NOT NULL CONSTRAINT [DF_Products_DiscountRate] DEFAULT ((0)),
+        [SalePrice] decimal(12,2) NULL,
         [Stock] int NOT NULL,
         [PrimaryImagePath] nvarchar(500) NULL,
         [SourceUrl] nvarchar(1000) NULL,
@@ -306,6 +308,8 @@ BEGIN TRANSACTION;
         [UpdatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_Products_Updated] DEFAULT ((sysutcdatetime())),
         CONSTRAINT [PK_Products] PRIMARY KEY ([Id]),
         CONSTRAINT [CK_Products_Price] CHECK (([Price]>=(0))),
+        CONSTRAINT [CK_Products_DiscountRate] CHECK (([DiscountRate]>=(0) AND [DiscountRate]<=(100))),
+        CONSTRAINT [CK_Products_SalePrice] CHECK (([SalePrice] IS NULL OR ([SalePrice]>(0) AND [SalePrice]<[Price]))),
         CONSTRAINT [CK_Products_Stock] CHECK (([Stock]>=(0)))
     );
 

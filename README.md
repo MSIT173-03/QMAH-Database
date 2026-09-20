@@ -6,11 +6,17 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.9.3 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.3)。Release 提供與 `db-v0.9.3` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.9.3.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.10.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.10.0)。Release 提供與 `db-v0.10.0` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.10.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> ⚠️ `db-v0.9.2` 已明確作廢，僅供歷史追溯；請勿下載、還原或部署，所有新環境一律使用 `db-v0.9.3`。
+> ⚠️ `db-v0.9.2` 與 `db-v0.9.3` 僅供歷史追溯；請勿下載、還原或部署，所有新環境一律使用 `db-v0.10.0`。
 
-### db-v0.9.3 修正版更新內容
+### db-v0.10.0 更新內容
+
+- 商城商品保留 `Price`、`DiscountRate` 與可為 NULL 的 `SalePrice`；有效售價優先採用有效 `SalePrice`，否則依 `DiscountRate` 計算。
+- 管理員可用折扣率批次套用商品價格，也可指定單品或批次的固定折扣後售價；購物車與訂單沿用同一有效售價規則。
+- 修正官方商城公告與點數兌換券的 2099 結束日期，改為 2026/12/31。
+
+### db-v0.10.0 修正版更新內容
 
 - 文物、題庫與相關年代資料重新建立為 512 件；舊的 256 件展示文物不保留，八類分布與 18 個年代桶已一併寫入同一份 Snapshot。
 - 商城同步建立 512 件「複製品＆文物明信片套組」，每件商品保留對應原文物尺寸；明信片固定為 A6（148 × 105 mm），版型由主圖比例自動套用，文案明確分開明信片與縮小複製品。
@@ -241,4 +247,4 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
-目前 Repository 版本入口為 [db-v0.9.3 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.9.3)。本版刻意替換展示用文物與商品資料，並修正既有訂單明細快照，不提供會保留舊 256 件資料的增量升級腳本；既有環境請以 `QMAH.sql` 或 `QMAH-0.9.3.bak` 建立／還原完整 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+目前 Repository 版本入口為 [db-v0.10.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.10.0)。本版保留目前完整展示資料，加入商城商品的批次折扣率與指定折扣後售價，並修正官方商城公告的日期；既有環境請以 `QMAH.sql` 或 `QMAH-0.10.0.bak` 建立／還原完整 Snapshot，不以局部升級腳本取代完整交付。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
