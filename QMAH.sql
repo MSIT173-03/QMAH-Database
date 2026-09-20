@@ -1,14 +1,14 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
-IF DB_ID(N'QMAH_0_9_2_Source') IS NOT NULL
-    THROW 51000, 'Database QMAH_0_9_2_Source already exists. Drop or rename it before running this script.', 1;
+IF DB_ID(N'QMAH') IS NOT NULL
+    THROW 51000, 'Database QMAH already exists. Drop or rename it before running this script.', 1;
 GO
-CREATE DATABASE [QMAH_0_9_2_Source] COLLATE SQL_Latin1_General_CP1_CI_AS;
+CREATE DATABASE [QMAH] COLLATE SQL_Latin1_General_CP1_CI_AS;
 GO
-ALTER DATABASE [QMAH_0_9_2_Source] SET RECOVERY SIMPLE;
+ALTER DATABASE [QMAH] SET RECOVERY SIMPLE;
 GO
-USE [QMAH_0_9_2_Source];
+USE [QMAH];
 GO
 
 -- SCHEMAS
@@ -3851,6 +3851,7 @@ INSERT INTO [common].[DailyMemberActivities] ([Id], [UserId], [ActivityType], [A
     ('007f6b39-2b8b-6c59-afb4-f5714e9d73bb', '9b7f2427-e62e-4229-82c3-36b1dcdd1882', N'CHECK_IN', CONVERT(date, '2026-09-11', 23), 1, CONVERT(datetime2(3), '2026-09-11T15:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-11T15:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-11T15:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
     ('4793c9aa-6bc2-7358-967c-f5754a2187de', 'f43ee0b6-a28d-47c1-a5e2-32fa9060383c', N'LOGIN', CONVERT(date, '2026-09-17', 23), 1, CONVERT(datetime2(3), '2026-09-17T10:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-17T10:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-17T10:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
     ('e7bda622-c602-6152-bca7-f58b01e92945', 'ce13b79f-7f78-40e1-af3b-8b20a85c610b', N'LOGIN', CONVERT(date, '2026-09-03', 23), 1, CONVERT(datetime2(3), '2026-09-03T12:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-03T12:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-03T12:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
+    ('747c6f00-c46a-458f-85cc-f599eb8ebad6', '4134ddc4-ca89-4180-ac72-bbe0f42ab285', N'LOGIN', CONVERT(date, '2026-09-20', 23), 1, CONVERT(datetime2(3), '2026-09-20T08:05:32.2760000', 126), CONVERT(datetime2(3), '2026-09-20T08:05:32.2760000', 126), CONVERT(datetime2(3), '2026-09-20T08:05:32.2760000', 126), CONVERT(datetime2(3), '2026-09-20T08:05:32.2760000', 126)),
     ('bc2fda4f-e99f-0453-884a-f643315f365a', '869ef3e0-f8cd-428c-aae4-48a75e23861a', N'CHECK_IN', CONVERT(date, '2026-09-04', 23), 1, CONVERT(datetime2(3), '2026-09-04T14:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-04T14:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-04T14:22:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
     ('539d5da6-b8a3-9658-99c6-f65ecf5adc60', '11ffd7dd-c9e5-4d05-b726-2b60a56cf118', N'LOGIN', CONVERT(date, '2026-09-18', 23), 2, CONVERT(datetime2(3), '2026-09-18T14:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-18T14:45:00.0000000', 126), CONVERT(datetime2(3), '2026-09-18T14:10:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
     ('e87b8538-81c9-471d-9997-f7704659d469', '1b6805e8-d50c-40c3-8f9b-5c73ef467249', N'LOGIN', CONVERT(date, '2026-08-23', 23), 1, CONVERT(datetime2(3), '2026-08-23T11:10:00.0000000', 126), CONVERT(datetime2(3), '2026-08-23T11:10:00.0000000', 126), CONVERT(datetime2(3), '2026-08-23T08:00:00.0000000', 126), CONVERT(datetime2(3), '2026-09-19T14:19:50.7500000', 126)),
@@ -4461,7 +4462,8 @@ INSERT INTO [game].[GameRounds] ([Id], [RoomId], [ArtifactId], [RoundNumber], [S
 GO
 -- game.MiniGameAttempts
 INSERT INTO [game].[MiniGameAttempts] ([Id], [UserId], [GameModeDefinitionId], [ArtifactId], [ArtifactPoolJson], [Difficulty], [Seed], [ConfigJson], [Status], [RawScore], [RawResultJson], [NormalizedScore], [Grade], [PointReward], [KeyProgressReward], [RewardAttemptNo], [RewardGranted], [StartedAt], [CompletedAt]) VALUES
-    ('6c1b4be0-a7b5-5b5e-88c6-139b5b67f205', '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'd15e1d36-9b43-4de8-9d7b-2d4f2b5f6f02', '30921d0e-a57d-8a52-1e1c-8af3a657f7ae', N'showcase-artifact', N'NORMAL', N'showcase-173-1', N'{source:showcase}', N'COMPLETED', 82, N'correct', 82, N'A', 0, 0, NULL, 0, CONVERT(datetime2(3), '2026-09-16T12:19:13.6610000', 126), CONVERT(datetime2(3), '2026-09-16T12:27:13.6610000', 126));
+    ('6c1b4be0-a7b5-5b5e-88c6-139b5b67f205', '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'd15e1d36-9b43-4de8-9d7b-2d4f2b5f6f02', '30921d0e-a57d-8a52-1e1c-8af3a657f7ae', N'showcase-artifact', N'NORMAL', N'showcase-173-1', N'{source:showcase}', N'COMPLETED', 82, N'correct', 82, N'A', 0, 0, NULL, 0, CONVERT(datetime2(3), '2026-09-16T12:19:13.6610000', 126), CONVERT(datetime2(3), '2026-09-16T12:27:13.6610000', 126)),
+    ('46b5ac73-2a4b-489e-9262-57474327b407', '4134ddc4-ca89-4180-ac72-bbe0f42ab285', 'd15e1d36-9b43-4de8-9d7b-2d4f2b5f6f02', '5f42e7ef-cf31-1f39-3084-257bee14b897', N'["5f42e7ef-cf31-1f39-3084-257bee14b897"]', N'NORMAL', N'bcae59650bd948c0907338f0b9fb5a68', N'{"pieces":"configurable-grid","source":"artifact-image"}', N'STARTED', NULL, NULL, NULL, NULL, 0, 0, NULL, 0, CONVERT(datetime2(3), '2026-09-20T08:05:48.5230000', 126), NULL);
 GO
 -- game.RoundAnswers
 INSERT INTO [game].[RoundAnswers] ([Id], [RoundId], [GamePlayerId], [AnswerType], [Text], [SubmittedAt]) VALUES
