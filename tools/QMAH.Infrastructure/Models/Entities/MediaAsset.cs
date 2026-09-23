@@ -22,6 +22,10 @@ public partial class MediaAsset
 
     public string? AltText { get; set; }
 
+    // 圖片一律排入 AI 審查（辨識暴力／色情內容），沒有規則式訊號可以先篩掉一部分；
+    // null 代表還沒審查，同 SocialPost.AiReviewedAt。
+    public DateTime? AiReviewedAt { get; set; }
+
     public string Status { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }

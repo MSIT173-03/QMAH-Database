@@ -31,6 +31,12 @@ public partial class SocialPost
 
     public decimal? Longitude { get; set; }
 
+    public long? SimHash { get; set; }
+
+    // null 代表還沒排到 AI 複審（見 AiContentReviewWorker）；有值代表已經審查過，不管結果是否命中
+    // 都不會再被排程撿到，避免同一篇貼文重複呼叫 AI。
+    public DateTime? AiReviewedAt { get; set; }
+
     public string Status { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }

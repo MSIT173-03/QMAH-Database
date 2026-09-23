@@ -15,6 +15,11 @@ public partial class SocialComment
 
     public string Content { get; set; } = null!;
 
+    public long? SimHash { get; set; }
+
+    // 同 SocialPost.AiReviewedAt：null 代表還沒排到 AI 複審。
+    public DateTime? AiReviewedAt { get; set; }
+
     public string Status { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
