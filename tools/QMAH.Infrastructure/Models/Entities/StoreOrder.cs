@@ -35,6 +35,11 @@ public partial class StoreOrder
 
     public string ShippingAddressLine { get; set; } = null!;
 
+    /// <summary>展示訂單的配送方式代碼；選項本身不落地成資料表。</summary>
+    public string ShippingMethod { get; set; } = null!;
+
+    public decimal ShippingFee { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? PaidAt { get; set; }

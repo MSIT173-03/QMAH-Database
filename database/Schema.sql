@@ -698,11 +698,13 @@ BEGIN TRANSACTION;
         [ShippingCity] nvarchar(30) NOT NULL,
         [ShippingDistrict] nvarchar(30) NOT NULL,
         [ShippingAddressLine] nvarchar(200) NOT NULL,
+        [ShippingMethod] nvarchar(40) NOT NULL CONSTRAINT [DF_StoreOrders_ShippingMethod] DEFAULT N'',
+        [ShippingFee] decimal(12,2) NOT NULL CONSTRAINT [DF_StoreOrders_ShippingFee] DEFAULT ((0)),
         [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_StoreOrders_Created] DEFAULT ((sysutcdatetime())),
         [PaidAt] datetime2(3) NULL,
         [CancelledAt] datetime2(3) NULL,
         CONSTRAINT [PK_StoreOrders] PRIMARY KEY ([Id]),
-        CONSTRAINT [CK_StoreOrders_Amounts] CHECK (([Subtotal]>=(0) AND [DiscountAmount]>=(0) AND [PointsUsed]>=(0) AND [TotalAmount]>=(0) AND [TotalAmount]=(([Subtotal]-[DiscountAmount])-[PointsUsed]))),
+        CONSTRAINT [CK_StoreOrders_Amounts] CHECK (([Subtotal]>=(0) AND [DiscountAmount]>=(0) AND [PointsUsed]>=(0) AND [ShippingFee]>=(0) AND [TotalAmount]>=(0) AND [TotalAmount]=((([Subtotal]-[DiscountAmount])-[PointsUsed])+[ShippingFee]))),
         CONSTRAINT [CK_StoreOrders_Status] CHECK (([Status]=N'COMPLETED' OR [Status]=N'SHIPPED' OR [Status]=N'FULFILLING' OR [Status]=N'CANCELLED' OR [Status]=N'PAID' OR [Status]=N'PENDING_PAYMENT')),
         CONSTRAINT [FK_StoreOrders_Coupon] FOREIGN KEY ([UserCouponId]) REFERENCES [store].[UserCoupons] ([Id])
     );

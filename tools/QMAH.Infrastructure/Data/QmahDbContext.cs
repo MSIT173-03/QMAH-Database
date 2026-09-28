@@ -1321,6 +1321,12 @@ public partial class QmahDbContext
             entity.Property(e => e.ShippingCity).HasMaxLength(30);
             entity.Property(e => e.ShippingDistrict).HasMaxLength(30);
             entity.Property(e => e.ShippingPostalCode).HasMaxLength(10);
+            entity.Property(e => e.ShippingMethod)
+                .HasMaxLength(40)
+                .HasDefaultValue("", "DF_StoreOrders_ShippingMethod");
+            entity.Property(e => e.ShippingFee)
+                .HasColumnType("decimal(12, 2)")
+                .HasDefaultValue(0m, "DF_StoreOrders_ShippingFee");
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
                 .HasDefaultValue("PENDING_PAYMENT", "DF_StoreOrders_Status");

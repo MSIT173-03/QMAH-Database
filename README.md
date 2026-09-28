@@ -6,9 +6,14 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.10.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.10.2)。Release 提供與 `db-v0.10.2` tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.10.2.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.11.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.11.0)，與 QMAH 主程式 `v0.11.0` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.11.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> ⚠️ `db-v0.9.2` 與 `db-v0.9.3` 僅供歷史追溯；請勿下載、還原或部署，所有新環境一律使用 `db-v0.10.2`。
+> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v0.11.0`。
+
+### db-v0.11.0 更新內容
+
+- 訂單新增 `ShippingMethod` 與 `ShippingFee`，金額約束納入運費；180 筆純展示訂單依目前宅配／超商與滿額免運規則重整，保留原付款方式、狀態與交易欄位，付款金額同步納入運費。展示交易欄位不代表真實收款。
+- 與主程式 `v0.11.0` 對齊版本入口；SQL 與 BAK 由同一次資料庫匯出產生。SQL 可重建乾淨資料庫，56 張表的 Schema 與逐表資料比對一致，EF model 驗證通過。
 
 ### db-v0.10.2 更新內容
 
@@ -253,4 +258,4 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
-目前 Repository 版本入口為 [db-v0.10.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.10.2)。本版保留完整展示資料、商城折扣與社群審核結構；既有環境請以 `QMAH.sql` 或 `QMAH-0.10.2.bak` 建立／還原完整 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+目前 Repository 版本入口為 [db-v0.11.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.11.0)。本版保留完整展示資料、商城折扣、社群審核與新版商城訂單；新環境請以 `QMAH.sql` 或 `QMAH-0.11.0.bak` 建立／還原完整 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
