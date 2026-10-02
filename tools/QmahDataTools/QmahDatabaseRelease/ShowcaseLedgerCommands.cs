@@ -428,7 +428,7 @@ public static class ShowcaseLedgerCommands
             .ToDictionaryAsync(balance => balance.UserId);
         var oldSums = existing
             .GroupBy(transaction => transaction.UserId)
-            .ToDictionary(group => group.Key, group => group.Sum(transaction => (long)transaction.Amount));
+            .ToDictionary(group => group.Key, group => group.Sum(transaction => transaction.Amount));
         var baseline = users.ToDictionary(
             user => user.Id,
             user => BaseBalance(balances, user.Id, oldSums.GetValueOrDefault(user.Id)));
@@ -676,11 +676,18 @@ public static class ShowcaseLedgerCommands
         long oldGeneratedSum) =>
         BaseBalance(balances.TryGetValue(key, out var balance) ? balance.Balance : 0, oldGeneratedSum);
 
-    private static long BaseBalance(
+    private static decimal BaseBalance(
         IReadOnlyDictionary<Guid, KeyProgressBalance> balances,
         Guid userId,
-        long oldGeneratedSum) =>
-        BaseBalance(balances.TryGetValue(userId, out var balance) ? balance.Balance : 0, oldGeneratedSum);
+        decimal oldGeneratedSum) =>
+        Math.Max(0m, (balances.TryGetValue(userId, out var balance) ? balance.Balance : 0m) - oldGeneratedSum);
+
+    private static decimal CheckedBalance(decimal value)
+    {
+        if (value is < 0 or > 9999999999.99m)
+            throw new InvalidOperationException("展示鑰匙進度更新超出 decimal(12,2) 範圍，已停止更新。");
+        return value;
+    }
 
     private static long BaseBalance(int currentBalance, long oldGeneratedSum) =>
         Math.Max(0L, currentBalance - oldGeneratedSum);
