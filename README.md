@@ -259,3 +259,14 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
 目前 Repository 版本入口為 [db-v0.11.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.11.0)。本版保留完整展示資料、商城折扣、社群審核與新版商城訂單；新環境請以 `QMAH.sql` 或 `QMAH-0.11.0.bak` 建立／還原完整 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+
+## db-v0.12.0 開發版本（尚未發布）
+
+本次完整 SQL 與 manifest 已整理為 db-v0.12.0，正式 Release 仍為 db-v0.11.0。新版需要對應的 feature/game 程式，不可只替換 Snapshot 而沿用舊的 int 進度模型。
+
+**本版要求全新還原，不提供增補升級。** 本次重整跨表的展示資料，只補欄位或套部分種子無法重現新版內容。請先備份舊資料庫、停止 API／Web，再以本版完整 BAK 還原；或在乾淨資料庫執行同源 SQL。不要將完整 SQL 疊加在舊資料庫，也不要用舊產生器覆蓋新版內容。新版程式必須與資料庫一起切換。
+
+- 新增鑑賞投票表，擴充既有多人／單人領獎收據及每日活動，進度欄位改為 decimal(12,2)。使用既有表記錄每天 100 點、一次突破額外 30 點與收藏達 80%／全收齊後的鑰匙放緩。
+- [ConnectedShowcase](tools/QmahDataTools/ConnectedShowcase/README.md) 是重新設計的關聯式資料工具：512 場、1,536 篇文物回答、96 筆單人完成紀錄，分給 24 個既有帳號；另外重整 170 筆生成訂單、102 篇評論，修正 5 張優惠券、43 篇回顧及 206 則留言。登入 email、密碼與角色保持不變。
+- SQL／BAK 同源，57 表乾淨重建與結構／逐表資料比對一致，EF model、Web 啟動、備份驗證及 SQL 決定性檢查通過。種子連續重跑後資料完全一致。
+- 尚未建立 tag 或發布 Release，不應把此開發版本連結當成已發布附件。詳細變更與既有資料處理說明已另備發布草稿，待本地提交確認後使用。
