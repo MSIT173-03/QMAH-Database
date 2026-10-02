@@ -33,7 +33,11 @@ public partial class MiniGameAttempt
 
     public int PointReward { get; set; }
 
-    public int KeyProgressReward { get; set; }
+    public decimal KeyProgressReward { get; set; }
+
+    public byte KeyRewardDivisor { get; set; } = 1;
+
+    public int ConvertedNormalKeys { get; set; }
 
     public int? RewardAttemptNo { get; set; }
 

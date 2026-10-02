@@ -50,7 +50,7 @@ public sealed class EconomyService(QmahDbContext db)
         var keyProgress = await db.KeyProgressBalances
             .AsNoTracking()
             .Where(balance => balance.UserId == userId)
-            .Select(balance => (int?)balance.Balance)
+            .Select(balance => (decimal?)balance.Balance)
             .SingleOrDefaultAsync(cancellationToken) ?? 0;
         var gameSetting = await GetGameEconomySettingAsync(cancellationToken);
 
@@ -1034,7 +1034,7 @@ public sealed record EconomyResult<T>(T? Value, string? ErrorCode, string? Error
 /// <summary>會員經濟總覽，包含點數、鑰匙進度、鑰匙餘額與可用兌換規則。</summary>
 public sealed record MemberEconomyView(
     int PointBalance,
-    int KeyProgressBalance,
+    decimal KeyProgressBalance,
     int KeyProgressToNormalKey,
     IReadOnlyList<KeyBalanceView> Keys,
     IReadOnlyList<KeyExchangeRuleView> ExchangeRules);

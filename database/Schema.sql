@@ -106,7 +106,7 @@ BEGIN TRANSACTION;
         [UpdatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_DailyMemberActivities_UpdatedAt] DEFAULT ((sysutcdatetime())),
         [RowVersion] rowversion NOT NULL,
         CONSTRAINT [PK_DailyMemberActivities] PRIMARY KEY ([Id]),
-        CONSTRAINT [CK_DailyMemberActivities_Type] CHECK (([ActivityType]=N'CHECK_IN' OR [ActivityType]=N'LOGIN')),
+        CONSTRAINT [CK_DailyMemberActivities_Type] CHECK (([ActivityType]=N'CHECK_IN' OR [ActivityType]=N'LOGIN' OR [ActivityType]=N'GAME_BREAKTHROUGH')),
         CONSTRAINT [CK_DailyMemberActivities_OccurrenceCount] CHECK (([OccurrenceCount]>(0))),
         CONSTRAINT [CK_DailyMemberActivities_Times] CHECK (([LastOccurredAt]>=[FirstOccurredAt] AND [UpdatedAt]>=[CreatedAt])),
         CONSTRAINT [FK_DailyMemberActivities_User] FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id])
@@ -241,6 +241,7 @@ BEGIN TRANSACTION;
     );
 
     CREATE TABLE [game].[GameRooms] (
+        [IsShowcase] bit NOT NULL CONSTRAINT [DF_GameRooms_IsShowcase] DEFAULT ((0)),
         [Id] uniqueidentifier NOT NULL,
         [RoomCode] nvarchar(12) NOT NULL,
         [Status] nvarchar(20) NOT NULL CONSTRAINT [DF_GameRooms_Status] DEFAULT N'WAITING',
@@ -623,6 +624,24 @@ BEGIN TRANSACTION;
         [LeftAt] datetime2(3) NULL,
         [RowVersion] rowversion NOT NULL,
         CONSTRAINT [PK_GamePlayers] PRIMARY KEY ([Id]),
+        [RewardClaimedAt] datetime2(3) NULL,
+        [RewardPoints] int NULL,
+        [RewardNormalKeys] int NULL,
+        [RewardPerformanceScore] int NULL,
+        [RewardRoundsWon] int NULL,
+        [RewardKeyProgress] decimal(12,2) NULL,
+        [RewardKeyDivisor] tinyint NULL,
+        CONSTRAINT [CK_GamePlayers_RewardKeyPolicy] CHECK (
+            ([RewardClaimedAt] IS NULL AND [RewardKeyProgress] IS NULL AND [RewardKeyDivisor] IS NULL)
+            OR ([RewardClaimedAt] IS NOT NULL AND [RewardKeyProgress] IS NOT NULL AND [RewardKeyProgress]>=0
+                AND [RewardKeyDivisor] IS NOT NULL AND [RewardKeyDivisor] IN (1,2,4))),
+        CONSTRAINT [CK_GamePlayers_RewardReceipt] CHECK (
+            ([RewardClaimedAt] IS NULL AND [RewardPoints] IS NULL AND [RewardNormalKeys] IS NULL AND [RewardPerformanceScore] IS NULL AND [RewardRoundsWon] IS NULL)
+            OR ([RewardClaimedAt] IS NOT NULL AND [RewardClaimedAt]>=[JoinedAt]
+                AND [RewardPoints] IS NOT NULL AND [RewardPoints]>=0
+                AND [RewardNormalKeys] IS NOT NULL AND [RewardNormalKeys]>=0
+                AND [RewardPerformanceScore] IS NOT NULL AND [RewardPerformanceScore] BETWEEN 0 AND 100
+                AND [RewardRoundsWon] IS NOT NULL AND [RewardRoundsWon] BETWEEN 0 AND 5)),
         CONSTRAINT [CK_GamePlayers_ConnectionStatus] CHECK (([ConnectionStatus]=N'LEFT' OR [ConnectionStatus]=N'OFFLINE' OR [ConnectionStatus]=N'ONLINE')),
         CONSTRAINT [CK_GamePlayers_DisplayName_NotBlank] CHECK ((len(ltrim(rtrim([DisplayName])))>(0))),
         CONSTRAINT [CK_GamePlayers_PlayerKey_NotBlank] CHECK ((len(ltrim(rtrim([PlayerKey])))>(0))),
@@ -971,7 +990,11 @@ BEGIN TRANSACTION;
         [NormalizedScore] int NULL,
         [Grade] nvarchar(2) NULL,
         [PointReward] int NOT NULL,
-        [KeyProgressReward] int NOT NULL,
+        [KeyProgressReward] decimal(12,2) NOT NULL,
+        [KeyRewardDivisor] tinyint NOT NULL CONSTRAINT [DF_MiniGameAttempts_KeyRewardDivisor] DEFAULT ((1)),
+        [ConvertedNormalKeys] int NOT NULL CONSTRAINT [DF_MiniGameAttempts_ConvertedNormalKeys] DEFAULT ((0)),
+        CONSTRAINT [CK_MiniGameAttempts_ConvertedNormalKeys] CHECK ([ConvertedNormalKeys]>=0),
+        CONSTRAINT [CK_MiniGameAttempts_KeyRewardDivisor] CHECK ([KeyRewardDivisor] IN (1,2,4)),
         [RewardAttemptNo] int NULL,
         [RewardGranted] bit NOT NULL,
         [StartedAt] datetime2(3) NOT NULL CONSTRAINT [DF_MiniGameAttempts_Started] DEFAULT ((sysutcdatetime())),
@@ -1012,7 +1035,7 @@ BEGIN TRANSACTION;
 
     CREATE TABLE [catalog].[KeyProgressBalances] (
         [UserId] uniqueidentifier NOT NULL,
-        [Balance] int NOT NULL,
+        [Balance] decimal(12,2) NOT NULL,
         [UpdatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_KeyProgressBalances_Updated] DEFAULT ((sysutcdatetime())),
         CONSTRAINT [PK_KeyProgressBalances] PRIMARY KEY ([UserId]),
         CONSTRAINT [CK_KeyProgressBalances_NonNegative] CHECK (([Balance]>=(0))),
@@ -1022,7 +1045,7 @@ BEGIN TRANSACTION;
     CREATE TABLE [catalog].[KeyProgressTransactions] (
         [Id] uniqueidentifier NOT NULL,
         [UserId] uniqueidentifier NOT NULL,
-        [Amount] int NOT NULL,
+        [Amount] decimal(12,2) NOT NULL,
         [Reason] nvarchar(40) NOT NULL,
         [ReferenceType] nvarchar(40) NULL,
         [ReferenceId] uniqueidentifier NULL,
@@ -1322,6 +1345,15 @@ BEGIN TRANSACTION;
     CREATE INDEX [IX_Votes_VoterGamePlayerId] ON [game].[Votes] ([VoterGamePlayerId]);
 
     CREATE UNIQUE INDEX [UX_Votes_Round_Voter_Answer] ON [game].[Votes] ([RoundId], [VoterGamePlayerId], [AnswerId]);
+
+    CREATE TABLE [catalog].[ArtifactAppreciationVotes] (
+        [AnswerId] uniqueidentifier NOT NULL,
+        [UserId] uniqueidentifier NOT NULL,
+        [CreatedAt] datetime2(3) NOT NULL,
+        CONSTRAINT [PK_ArtifactAppreciationVotes] PRIMARY KEY ([AnswerId], [UserId]),
+        CONSTRAINT [FK_ArtifactAppreciationVotes_Answer] FOREIGN KEY ([AnswerId]) REFERENCES [game].[RoundAnswers] ([Id]),
+        CONSTRAINT [FK_ArtifactAppreciationVotes_User] FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id])
+    );
 
 COMMIT;
 GO

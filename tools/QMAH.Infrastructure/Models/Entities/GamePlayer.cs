@@ -33,6 +33,21 @@ public partial class GamePlayer
 
     public DateTime? LeftAt { get; set; }
 
+    /// <summary>本場獎勵收據。即使點數已達上限，仍記錄鑰匙與結算結果，避免重領。</summary>
+    public DateTime? RewardClaimedAt { get; set; }
+
+    public int? RewardPoints { get; set; }
+
+    public int? RewardNormalKeys { get; set; }
+
+    public int? RewardPerformanceScore { get; set; }
+
+    public int? RewardRoundsWon { get; set; }
+
+    public decimal? RewardKeyProgress { get; set; }
+
+    public byte? RewardKeyDivisor { get; set; }
+
     public byte[] RowVersion { get; set; } = null!;
 
     public virtual GameRoom Room { get; set; } = null!;

@@ -134,7 +134,7 @@ public sealed class MiniGameService(QmahDbContext db, EconomyService economyServ
             var currentProgress = await db.KeyProgressBalances
                 .AsNoTracking()
                 .Where(item => item.UserId == userId)
-                .Select(item => (int?)item.Balance)
+                .Select(item => (decimal?)item.Balance)
                 .SingleOrDefaultAsync(cancellationToken) ?? 0;
             await transaction.CommitAsync(cancellationToken);
             return EconomyResult<MiniGameCompleteView>.Success(ToCompleteView(attempt, 0, currentProgress, true));
@@ -191,7 +191,7 @@ public sealed class MiniGameService(QmahDbContext db, EconomyService economyServ
         var remainingProgress = await db.KeyProgressBalances
             .AsNoTracking()
             .Where(item => item.UserId == userId)
-            .Select(item => (int?)item.Balance)
+            .Select(item => (decimal?)item.Balance)
             .SingleOrDefaultAsync(cancellationToken) ?? 0;
         var now = DateTime.UtcNow;
         if (hasEconomicReward && pointReward > 0)
@@ -214,7 +214,7 @@ public sealed class MiniGameService(QmahDbContext db, EconomyService economyServ
         {
             var progressBalance = await GetOrCreateProgressBalanceAsync(userId, cancellationToken);
             var totalProgress = checked(progressBalance.Balance + keyProgressReward);
-            convertedNormalKeys = totalProgress / setting.KeyProgressToNormalKey;
+            convertedNormalKeys = checked((int)decimal.Floor(totalProgress / setting.KeyProgressToNormalKey));
             remainingProgress = totalProgress % setting.KeyProgressToNormalKey;
             progressBalance.Balance = remainingProgress;
             progressBalance.UpdatedAt = now;
@@ -307,7 +307,7 @@ public sealed class MiniGameService(QmahDbContext db, EconomyService economyServ
     private static MiniGameCompleteView ToCompleteView(
         MiniGameAttempt attempt,
         int convertedNormalKeys,
-        int remainingKeyProgress,
+        decimal remainingKeyProgress,
         bool alreadyCompleted) => new(
         attempt.Id,
         attempt.GameModeDefinition.Code,
@@ -462,9 +462,9 @@ public sealed record MiniGameCompleteView(
     int NormalizedScore,
     string Grade,
     int PointReward,
-    int KeyProgressReward,
+    decimal KeyProgressReward,
     int ConvertedNormalKeys,
-    int RemainingKeyProgress,
+    decimal RemainingKeyProgress,
     bool EconomicRewardGranted,
     bool AlreadyCompleted,
     DateTime CompletedAt);

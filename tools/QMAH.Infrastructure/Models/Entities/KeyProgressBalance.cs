@@ -7,7 +7,7 @@ public partial class KeyProgressBalance
 {
     public Guid UserId { get; set; }
 
-    public int Balance { get; set; }
+    public decimal Balance { get; set; }
 
     public DateTime UpdatedAt { get; set; }
 }

@@ -128,6 +128,8 @@ public partial class QmahDbContext
     {
         // IdentityDbContext 的基礎 mapping 必須先保留，再套用 QMAH 的 schema 與欄位設定。
         base.OnModelCreating(modelBuilder);
+        ConfigureAppreciation(modelBuilder);
+        ConfigureGameRewardContract(modelBuilder);
 
         modelBuilder.Entity<AdminAuditLog>(entity =>
         {

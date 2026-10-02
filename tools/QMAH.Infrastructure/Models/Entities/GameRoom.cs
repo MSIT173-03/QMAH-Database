@@ -11,6 +11,9 @@ public partial class GameRoom
 
     public string Status { get; set; } = null!;
 
+    /// <summary>展示資料不提供遊戲獎勵，也不計入每日突破資格。</summary>
+    public bool IsShowcase { get; set; }
+
     public string Visibility { get; set; } = null!;
 
     public string? PasswordHash { get; set; }
