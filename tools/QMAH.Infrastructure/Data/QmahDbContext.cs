@@ -1268,6 +1268,9 @@ public partial class QmahDbContext
             entity.Property(e => e.ContentMode)
                 .HasMaxLength(20)
                 .HasDefaultValue("CUSTOM", "DF_SocialPosts_ContentMode");
+            entity.Property(e => e.MediaLayout)
+                .HasMaxLength(20)
+                .HasDefaultValue("SECONDARY", "DF_SocialPosts_MediaLayout");
             entity.Property(e => e.CreatedAt)
                 .HasPrecision(3)
                 .HasDefaultValueSql("(sysutcdatetime())", "DF_SocialPosts_Created");

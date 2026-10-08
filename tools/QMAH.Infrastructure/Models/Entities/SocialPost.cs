@@ -25,6 +25,8 @@ public partial class SocialPost
 
     public string Content { get; set; } = null!;
 
+    public string MediaLayout { get; set; } = "SECONDARY";
+
     public string? LocationName { get; set; }
 
     public decimal? Latitude { get; set; }
