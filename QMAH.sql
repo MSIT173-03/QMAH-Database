@@ -1281,6 +1281,7 @@ CREATE TABLE [social].[SocialPosts](
 	[Status] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[CreatedAt] [datetime2](3) NOT NULL,
 	[UpdatedAt] [datetime2](3) NOT NULL,
+	[MediaLayout] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[SimHash] [bigint] NULL,
 	[AiReviewedAt] [datetime2](3) NULL,
  CONSTRAINT [PK_SocialPosts] PRIMARY KEY CLUSTERED
@@ -1295,6 +1296,8 @@ ALTER TABLE [social].[SocialPosts] ADD  CONSTRAINT [DF_SocialPosts_PublisherType
 GO
 ALTER TABLE [social].[SocialPosts] ADD  CONSTRAINT [DF_SocialPosts_ContentMode]  DEFAULT (N'CUSTOM') FOR [ContentMode]
 GO
+ALTER TABLE [social].[SocialPosts] ADD  CONSTRAINT [DF_SocialPosts_MediaLayout]  DEFAULT (N'SECONDARY') FOR [MediaLayout]
+GO
 ALTER TABLE [social].[SocialPosts] ADD  CONSTRAINT [DF_SocialPosts_Status]  DEFAULT (N'PUBLISHED') FOR [Status]
 GO
 ALTER TABLE [social].[SocialPosts] ADD  CONSTRAINT [DF_SocialPosts_Created]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
@@ -1308,6 +1311,10 @@ GO
 ALTER TABLE [social].[SocialPosts]  WITH CHECK ADD  CONSTRAINT [CK_SocialPosts_ContentMode] CHECK  (([ContentMode]=N'TEMPLATE' OR [ContentMode]=N'CUSTOM'))
 GO
 ALTER TABLE [social].[SocialPosts] CHECK CONSTRAINT [CK_SocialPosts_ContentMode]
+GO
+ALTER TABLE [social].[SocialPosts]  WITH CHECK ADD  CONSTRAINT [CK_SocialPosts_MediaLayout] CHECK  (([MediaLayout]=N'PRIMARY' OR [MediaLayout]=N'SECONDARY'))
+GO
+ALTER TABLE [social].[SocialPosts] CHECK CONSTRAINT [CK_SocialPosts_MediaLayout]
 GO
 ALTER TABLE [social].[SocialPosts]  WITH CHECK ADD  CONSTRAINT [CK_SocialPosts_Coordinates] CHECK  (([Latitude] IS NULL AND [Longitude] IS NULL OR [Latitude] IS NOT NULL AND [Longitude] IS NOT NULL))
 GO
@@ -19613,11 +19620,11 @@ GO
 -- social.MediaAssets
 INSERT INTO [social].[MediaAssets] ([Id], [SequenceNo], [OwnerUserId], [PostId], [OriginalFileName], [StoredPath], [ContentType], [FileSize], [AltText], [Status], [CreatedAt], [UpdatedAt], [AiReviewedAt]) VALUES
     ('a7b8a809-b8dc-5de4-b9f3-1f10dc26c6ed', 1, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'ade26558-2c88-9851-ac59-d41c5960b783', N'showcase-artifact.jpg', N'/media/catalog/ceramic/中日瓷000005N000000000/display.jpg', N'image/jpeg', 1, N'展示資料使用的文物影像', N'ACTIVE', CONVERT(datetime2(3), '2026-09-17T12:19:13.6610000', 126), CONVERT(datetime2(3), '2026-09-17T12:19:13.6610000', 126), NULL),
-    ('82497779-d9f4-4943-8355-2a0533bc18d6', 3, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'b5e7410b-ede5-4f3e-afc6-5bc233aa9f70', N'p1.jpg', N'3.jpg', N'image/jpeg', 27628, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-05T05:23:00.2590000', 126), CONVERT(datetime2(3), '2026-10-05T05:23:15.0200000', 126), NULL),
-    ('ac800697-0ca0-408d-bcdb-32e34e42b93d', 6, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'e0d32282-49ad-471e-b5a7-e2ccf5ea854f', N'card5.jpg', N'6.jpg', N'image/jpeg', 57514, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:10:11.9280000', 126), CONVERT(datetime2(3), '2026-10-08T01:10:14.0720000', 126), NULL),
-    ('4e4a692a-540d-4289-9c3a-4c8981f32054', 4, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '07086cfd-9fc2-417b-8a67-c66cc24b1396', N'card1.jpg', N'4.jpg', N'image/jpeg', 41744, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:09:49.2280000', 126), CONVERT(datetime2(3), '2026-10-08T01:09:51.3730000', 126), NULL),
-    ('9afe8749-ae90-4c48-9e9c-6a92bc169122', 5, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '27e5e08d-0cc7-4b0e-b75e-0d6ba641d099', N'bg.jpg', N'5.jpg', N'image/jpeg', 1059832, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:09:59.7710000', 126), CONVERT(datetime2(3), '2026-10-08T01:10:01.4350000', 126), NULL),
-    ('975967a5-cb3f-45ae-9b11-f06c9a5e230f', 2, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '9b4cf4d1-2273-47c0-9459-bb842e1146a8', N'p1.jpg', N'2.jpg', N'image/jpeg', 246728, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-05T05:02:09.3520000', 126), CONVERT(datetime2(3), '2026-10-05T05:03:26.7520000', 126), NULL);
+    ('82497779-d9f4-4943-8355-2a0533bc18d6', 3, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'b5e7410b-ede5-4f3e-afc6-5bc233aa9f70', N'p1.jpg', N'social/posts/b5e7410b-ede5-4f3e-afc6-5bc233aa9f70/3.jpg', N'image/jpeg', 27628, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-05T05:23:00.2590000', 126), CONVERT(datetime2(3), '2026-10-05T05:23:15.0200000', 126), NULL),
+    ('ac800697-0ca0-408d-bcdb-32e34e42b93d', 6, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', 'e0d32282-49ad-471e-b5a7-e2ccf5ea854f', N'card5.jpg', N'social/posts/e0d32282-49ad-471e-b5a7-e2ccf5ea854f/6.jpg', N'image/jpeg', 57514, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:10:11.9280000', 126), CONVERT(datetime2(3), '2026-10-08T01:10:14.0720000', 126), NULL),
+    ('4e4a692a-540d-4289-9c3a-4c8981f32054', 4, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '07086cfd-9fc2-417b-8a67-c66cc24b1396', N'card1.jpg', N'social/posts/07086cfd-9fc2-417b-8a67-c66cc24b1396/4.jpg', N'image/jpeg', 41744, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:09:49.2280000', 126), CONVERT(datetime2(3), '2026-10-08T01:09:51.3730000', 126), NULL),
+    ('9afe8749-ae90-4c48-9e9c-6a92bc169122', 5, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '27e5e08d-0cc7-4b0e-b75e-0d6ba641d099', N'bg.jpg', N'social/posts/27e5e08d-0cc7-4b0e-b75e-0d6ba641d099/5.jpg', N'image/jpeg', 1059832, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-08T01:09:59.7710000', 126), CONVERT(datetime2(3), '2026-10-08T01:10:01.4350000', 126), NULL),
+    ('975967a5-cb3f-45ae-9b11-f06c9a5e230f', 2, '4d18c9d4-d3a3-46f2-86a9-ff75cbf49487', '9b4cf4d1-2273-47c0-9459-bb842e1146a8', N'p1.jpg', N'social/posts/9b4cf4d1-2273-47c0-9459-bb842e1146a8/2.jpg', N'image/jpeg', 246728, NULL, N'ACTIVE', CONVERT(datetime2(3), '2026-10-05T05:02:09.3520000', 126), CONVERT(datetime2(3), '2026-10-05T05:03:26.7520000', 126), NULL);
 GO
 -- social.OfficialAnnouncements
 INSERT INTO [social].[OfficialAnnouncements] ([Id], [Title], [Summary], [Content], [Category], [Status], [PublishAt], [EndAt], [CreatedByUserId], [CreatedAt], [UpdatedAt]) VALUES

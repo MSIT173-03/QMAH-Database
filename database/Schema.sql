@@ -369,6 +369,7 @@ BEGIN TRANSACTION;
         [ContentMode] nvarchar(20) NOT NULL CONSTRAINT [DF_SocialPosts_ContentMode] DEFAULT N'CUSTOM',
         [Title] nvarchar(150) NOT NULL,
         [Content] nvarchar(max) NOT NULL,
+        [MediaLayout] nvarchar(20) NOT NULL CONSTRAINT [DF_SocialPosts_MediaLayout] DEFAULT N'SECONDARY',
         [LocationName] nvarchar(200) NULL,
         [Latitude] decimal(9,6) NULL,
         [Longitude] decimal(9,6) NULL,
@@ -384,6 +385,7 @@ BEGIN TRANSACTION;
         CONSTRAINT [CK_SocialPosts_Longitude] CHECK (([Longitude] IS NULL OR ([Longitude]>=(-180) AND [Longitude]<=(180)))),
         CONSTRAINT [CK_SocialPosts_PostType] CHECK (([PostType]=N'POST' OR [PostType]=N'ANNOUNCEMENT' OR [PostType]=N'EVENT')),
         CONSTRAINT [CK_SocialPosts_PublisherType] CHECK (([PublisherType]=N'COMMUNITY' OR [PublisherType]=N'OFFICIAL')),
+        CONSTRAINT [CK_SocialPosts_MediaLayout] CHECK (([MediaLayout]=N'PRIMARY' OR [MediaLayout]=N'SECONDARY')),
         CONSTRAINT [CK_SocialPosts_ContentMode] CHECK (([ContentMode]=N'TEMPLATE' OR [ContentMode]=N'CUSTOM')),
         CONSTRAINT [CK_SocialPosts_Status] CHECK (([Status]=N'DELETED' OR [Status]=N'HIDDEN' OR [Status]=N'PUBLISHED')),
         CONSTRAINT [FK_SocialPosts_Event] FOREIGN KEY ([EventId]) REFERENCES [social].[Events] ([Id])
