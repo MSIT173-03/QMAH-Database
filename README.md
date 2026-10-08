@@ -6,9 +6,18 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.12.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.1)，與 QMAH 主程式 `v0.12.1` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.12.1.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.0)，與 QMAH 主程式 `v1.0.0` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v0.12.1`。
+> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v1.0.0`。
+
+### db-v1.0.0 更新內容
+
+本版對應 QMAH v1.0.0，接續 db-v0.12.1。主要差異是社群媒體改用新版儲存路徑，完整快照包含目前的貼文與媒體參照。
+
+- `social.SocialPosts` 新增 `MediaLayout`（預設 `AUTO`，可選 `SINGLE`、`DOUBLE`、`TRIPLE`）；兩個 Repository 的 Schema 與 EF model 已同步，共 58 張表。
+- 社群媒體使用相對於儲存根目錄的路徑；主程式兼容舊 `/media/` 參照，無效或越界路徑回傳 404。資料庫備份不含實體圖片，還原時需一併保留對應的媒體檔案與儲存根目錄設定。
+- 使用 `QMAH-1.0.0.bak` 或在乾淨資料庫執行 `QMAH-1.0.0.sql.zip` 內的 SQL；不要將完整 SQL 疊加到舊資料庫。正式快照不提供 0.12.1→1.0.0 增補腳本。
+- BAK、決定性 SQL、乾淨重建、逐表比對、EF model 與 Web 啟動驗證均通過。
 
 ### db-v0.11.0 更新內容
 
