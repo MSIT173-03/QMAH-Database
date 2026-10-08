@@ -6,9 +6,9 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v0.12.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.0)，與 QMAH 主程式 `v0.12.0` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.12.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v0.12.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.1)，與 QMAH 主程式 `v0.12.1` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-0.12.1.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v0.12.0`。
+> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v0.12.1`。
 
 ### db-v0.11.0 更新內容
 
@@ -258,7 +258,18 @@ QMAH.sql 是 Repository 內可審查、可直接執行的完整 SQL；.bak 是�
 
 Pipeline 會使用隔離資料庫完成還原、資料掃描、.bak checksum、SQL 匯出、SQL 重建、資料比對與 EF 驗證。若指定 -QmahRepositoryPath，才會再進行 QMAH.Web 啟動驗證。正式 Release 應附加同一次輸出的 .bak，並讓 QMAH.sql、manifest.json 與 tag 使用同一個版本。
 
-目前 Repository 版本入口為 [db-v0.12.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.0)。本版要求全新還原，請以完整 `QMAH.sql` 或 `QMAH-0.12.0.bak` 建立／還原 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+目前 Repository 版本入口為 [db-v0.12.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.1)。請以完整 `QMAH.sql`（或 Release 內壓縮的 `QMAH-0.12.1.sql.zip`）或 `QMAH-0.12.1.bak` 建立／還原 Snapshot。Snapshot 取得位置、開發資料內容、資料表說明與完整工具參數見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+
+## db-v0.12.1 更新內容
+
+本次完整 SQL 與 manifest 為 db-v0.12.1，對應 QMAH v0.12.1，補上綠界金流所需的資料結構。
+
+**升級要求：** 本版新增 PaymentAttempts 資料表、放寬付款狀態約束並新增訂單索引，需搭配 v0.12.1 主程式。請以完整 BAK 還原或在乾淨資料庫執行同源 SQL；會員、展示資料與登入帳號沿用 0.12.0 內容，不變。
+
+- 新增 `PaymentAttempts`（每次付款嘗試的紀錄），`Payments` 補上對應欄位，`CK_Payments_Status` 加入 `REFUND_REQUIRED`（待退款），`StoreOrders` 新增 `IX_StoreOrders_Status_CreatedAt`，共 58 張資料表。
+- Snapshot 與 EF 工具專案（`tools/QMAH.Infrastructure`）同步主程式的 Payment／PaymentAttempt／StoreOrder 模型。
+- SQL／BAK 同源，乾淨重建與結構／逐表資料比對一致（Differences 為空），EF model、Web 啟動、備份驗證及 SQL 決定性檢查通過。
+- 完整附件、改動原因與驗證步驟見 [db-v0.12.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.12.1)。
 
 ## db-v0.12.0 更新內容
 

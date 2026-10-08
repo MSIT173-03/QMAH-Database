@@ -796,8 +796,23 @@ BEGIN TRANSACTION;
         [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_Payments_Created] DEFAULT ((sysutcdatetime())),
         CONSTRAINT [PK_Payments] PRIMARY KEY ([Id]),
         CONSTRAINT [CK_Payments_Amount] CHECK (([Amount]>=(0))),
-        CONSTRAINT [CK_Payments_Status] CHECK (([Status]=N'CANCELLED' OR [Status]=N'FAILED' OR [Status]=N'PAID' OR [Status]=N'PENDING')),
+        CONSTRAINT [CK_Payments_Status] CHECK (([Status]=N'REFUND_REQUIRED' OR [Status]=N'CANCELLED' OR [Status]=N'FAILED' OR [Status]=N'PAID' OR [Status]=N'PENDING')),
         CONSTRAINT [FK_Payments_Order] FOREIGN KEY ([OrderId]) REFERENCES [store].[StoreOrders] ([Id])
+    );
+
+    CREATE TABLE [store].[PaymentAttempts] (
+        [Id] uniqueidentifier NOT NULL,
+        [PaymentId] uniqueidentifier NOT NULL,
+        [MerchantTradeNo] varchar(20) NOT NULL,
+        [Status] nvarchar(20) NOT NULL CONSTRAINT [DF_PaymentAttempts_Status] DEFAULT N'CREATED',
+        [EcpayTradeNo] nvarchar(30) NULL,
+        [RtnCode] int NULL,
+        [RtnMsg] nvarchar(200) NULL,
+        [CallbackReceivedAt] datetime2(3) NULL,
+        [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_PaymentAttempts_Created] DEFAULT ((sysutcdatetime())),
+        CONSTRAINT [PK_PaymentAttempts] PRIMARY KEY ([Id]),
+        CONSTRAINT [CK_PaymentAttempts_Status] CHECK (([Status]=N'REFUND_REQUIRED' OR [Status]=N'FAILED' OR [Status]=N'PAID' OR [Status]=N'CREATED')),
+        CONSTRAINT [FK_PaymentAttempts_Payment] FOREIGN KEY ([PaymentId]) REFERENCES [store].[Payments] ([Id])
     );
 
     CREATE TABLE [catalog].[ArtifactUnlocks] (
@@ -1276,6 +1291,10 @@ BEGIN TRANSACTION;
 
     CREATE UNIQUE INDEX [UQ_Payments_Order] ON [store].[Payments] ([OrderId]);
 
+    CREATE UNIQUE INDEX [UQ_PaymentAttempts_MerchantTradeNo] ON [store].[PaymentAttempts] ([MerchantTradeNo]);
+
+    CREATE INDEX [IX_PaymentAttempts_PaymentId] ON [store].[PaymentAttempts] ([PaymentId]);
+
     CREATE INDEX [IX_PointTransactions_Member] ON [store].[PointTransactions] ([UserId], [CreatedAt] DESC);
 
     CREATE INDEX [IX_PointTransactions_AdminUser] ON [store].[PointTransactions] ([CreatedByAdminUserId], [CreatedAt] DESC);
@@ -1307,6 +1326,8 @@ BEGIN TRANSACTION;
     CREATE INDEX [IX_StoreOrders_UserCouponId] ON [store].[StoreOrders] ([UserCouponId]);
 
     CREATE INDEX [IX_StoreOrders_UserId] ON [store].[StoreOrders] ([UserId]);
+
+    CREATE INDEX [IX_StoreOrders_Status_CreatedAt] ON [store].[StoreOrders] ([Status], [CreatedAt]);
 
     CREATE UNIQUE INDEX [UQ_StoreOrders_OrderNo] ON [store].[StoreOrders] ([OrderNo]);
 
