@@ -6,9 +6,17 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.0)，與 QMAH 主程式 `v1.0.0` 對齊。Release 提供與 tag 同源的 `QMAH.sql`、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.0.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.1)。本版沿用 1.0.0 的 58 張表，補齊商品展示評論與館長頭貼參照，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.1.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> ⚠️ 舊版 Snapshot 僅供歷史追溯；新環境請使用 `db-v1.0.0`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.1`。
+
+### db-v1.0.1 更新內容
+
+- 512 個商品皆有公開評論，每個商品 3～7 則，共 2,413 則。保留原有 102 則，新增 2,311 則。
+- 評論混合 1～5 星、長短句與購物口吻；低分主要描述配送、外包裝或個人期待落差。這些是專題展示用合成資料，不代表真實買家回饋。
+- `admin@qmah.local` 的頭貼改為 `/images/avatars/qmah-curator.png`，實體圖由 QMAH 程式 Repository 追蹤，避免依賴展示環境缺少的上傳檔案。部署時需同步此圖片。
+- `Seed-ProductReviews.ps1` 使用固定種子產生評論，`-RefreshGeneratedContent` 只更新本工具新增評論的文字，不修改原有評論、星等、付款或訂單資料。
+- 完整 BAK 與 SQL 由同一快照產生，驗證包含備份有效性、SQL 乾淨重建、逐表資料比對與 EF model。
 
 ### db-v1.0.0 更新內容
 
