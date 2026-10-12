@@ -6,9 +6,14 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.5 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.5)。本版沿用 58 張表，在 1.0.4 之上新增 10/15 到 11/22 的社群活動，並讓商城商品說明不再含分號，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.5.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.6 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.6)。本版沿用 58 張表，在 1.0.5 之上讓每個帳號的訂單涵蓋六種狀態，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.6.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.5`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.6`。
+
+### db-v1.0.6 更新內容
+
+- 每個帳號的訂單依建立時間輪流指派為已完成、已出貨、備貨中、已付款、待付款、已取消，方便展示評論、取消與出貨流程。
+- 只改訂單與付款的狀態欄位，金額、品項與收件資料不動。`Rebalance-OrderStatuses.sql` 產生此結果，本機與遠端套用同一份。
 
 ### db-v1.0.5 更新內容
 
