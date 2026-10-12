@@ -6,9 +6,16 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.2)。本版沿用 58 張表，重寫商品展示評論文字、把評論隨機分配給全部 24 個帳號，並替管理員與功能帳號補發展示用點數與鑰匙（含流水），沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.2.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.3 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.3)。本版沿用 58 張表，在 1.0.2 之上改寫社群貼文與留言裡的罐頭文字、移除分號，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.3.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.2`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.3`。
+
+### db-v1.0.3 更新內容
+
+- 159 篇貼文的結尾說明（作品核對、參觀地點、優惠券期限等）改成口語寫法，全部貼文與留言不再含分號。
+- 475 則罐頭式留言（同一句型重複上百次）換成自然的短回覆，公告留言另用一組。作品專屬的留言保留，只處理分號。
+- 洗版測試用的貼文（一直發、低價出清、幫我衝人氣、限時搶購、123）原封不動。
+- `Refresh-SocialText.py` 產生更新腳本，本機與遠端都套用同一份。驗證：BAK 通過 `RESTORE VERIFYONLY`，SQL 乾淨重建、58 張表逐表比對與 EF model 一致。
 
 ### db-v1.0.2 更新內容
 

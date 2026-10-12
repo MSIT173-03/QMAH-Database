@@ -1,7 +1,7 @@
 {
-  "version": "db-v1.0.2",
+  "version": "db-v1.0.3",
   "sourceRepository": "https://github.com/MSIT173-03/QMAH",
-  "generatedAt": "2026-10-12T03:05:00Z",
-  "sourceApplicationCommit": "29281e3f",
+  "generatedAt": "2026-10-12T04:10:00Z",
+  "sourceApplicationCommit": "b8f2027e",
   "demoProductReviews": 2413
 }
