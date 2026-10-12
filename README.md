@@ -6,9 +6,16 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.3 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.3)。本版沿用 58 張表，在 1.0.2 之上改寫社群貼文與留言裡的罐頭文字、移除分號，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.3.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.4 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.4)。本版沿用 58 張表，在 1.0.3 之上把作品整理文與活動介紹貼文改寫成自然的第一人稱筆記，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.4.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.3`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.4`。
+
+### db-v1.0.4 更新內容
+
+- 107 篇由產生器寫成的貼文（作品整理文四種句型、活動介紹）改成自然的第一人稱寫法，圖鑑的分類、年代、尺寸與原始說明原樣保留。
+- 52 則仍帶固定句型的留言換成自然的短回覆。
+- 洗版與釣魚測試貼文、標題為 67 的貼文、商城優惠與編輯公告原封不動。
+- `Refresh-SocialPosts.py` 產生更新腳本，本機與遠端套用同一份。驗證：BAK 通過 `RESTORE VERIFYONLY`，SQL 乾淨重建、58 張表逐表比對與 EF model 一致。
 
 ### db-v1.0.3 更新內容
 
