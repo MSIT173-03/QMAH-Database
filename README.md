@@ -6,9 +6,16 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.4 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.4)。本版沿用 58 張表，在 1.0.3 之上把作品整理文與活動介紹貼文改寫成自然的第一人稱筆記，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.4.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.5 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.5)。本版沿用 58 張表，在 1.0.4 之上新增 10/15 到 11/22 的社群活動，並讓商城商品說明不再含分號，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.5.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.4`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.5`。
+
+### db-v1.0.5 更新內容
+
+- 新增 9 場社群活動（官方與會員，線上與館內，10/15 到 11/22）與對應的活動貼文，三場重複的「週末館藏交流」中的兩場改成不同內容。
+- 3 篇內容重複的青銅爵貼文改成不同的標題與內文。
+- 512 筆商城商品說明的分號改成句號或逗號。
+- `Refresh-SocialEvents.py`、`Refresh-ProductSemicolons.py` 產生更新腳本，本機與遠端套用同一份。
 
 ### db-v1.0.4 更新內容
 
