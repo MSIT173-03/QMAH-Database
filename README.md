@@ -6,9 +6,16 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.1 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.1)。本版沿用 1.0.0 的 58 張表，補齊商品展示評論與館長頭貼參照，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.1.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前正式資料庫入口是 [db-v1.0.2 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.2)。本版沿用 58 張表，重寫商品展示評論文字、把評論隨機分配給全部 24 個帳號，並替管理員與功能帳號補發展示用點數與鑰匙（含流水），沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.2.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.1`。
+> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.2`。
+
+### db-v1.0.2 更新內容
+
+- 2,413 則商品評論全部重寫成自然的買家口吻（本機 `Refresh-ProductReviews.ps1`），文字不含分號，移除「把明信片當成鑑定依據」這類不像真人會說的句子。星等、狀態、建立時間不變。
+- 評論者隨機分配給全部 24 個帳號，同一商品每個帳號最多一則。
+- `Grant-DemoEconomy.sql` 替 admin 與 user、store、game、social、catalog、player-a、player-b 補發點數與一般、萬能鑰匙，並寫入 `DEMO_ECONOMY_V102` 流水，餘額與流水加總一致。這些是展示資料。
+- 驗證：BAK 通過 `RESTORE VERIFYONLY`，SQL 乾淨重建、58 張表逐表比對與 EF model 一致。
 
 ### db-v1.0.1 更新內容
 
