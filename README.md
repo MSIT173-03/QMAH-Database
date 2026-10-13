@@ -6,9 +6,14 @@
 
 ## 目前正式 Release
 
-目前正式資料庫入口是 [db-v1.0.6 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.6)。本版沿用 58 張表，在 1.0.5 之上讓每個帳號的訂單涵蓋六種狀態，沒有改動購物或付款規則。Release 提供同源 SQL、已通過 `RESTORE VERIFYONLY` 的 `QMAH-1.0.6.bak` 與 `SHA256SUMS.txt`。`.bak` 不提交到 Git；要產生下一版請使用 `Export-ReferenceDatabase.ps1`。
+目前完整快照為 [db-v1.0.10 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.10)，直接來自 2026-10-14 更新完成的 Azure 部署資料庫，共 62 張表。Release 提供同源 SQL、已通過線上與本機 `RESTORE VERIFYONLY` 並成功還原的 `QMAH-1.0.10.bak`，以及 `SHA256SUMS.txt`。BAK 以 Release 附件交付，不提交到 Git。
 
-> 舊版 Snapshot 保留供歷史追溯；新環境請使用 `db-v1.0.6`。
+### db-v1.0.10 更新內容
+
+- 納入貼文收藏、會員私訊、AI 審查狀態、開關與審查紀錄。
+- 補齊 22 種點數兌換券，保留現有優惠券及使用紀錄。
+- 新增 846 筆歷史展示購買訂單，所有商品的已購買數量均不低於評論數；金額與付款資料由同一份腳本產生。
+- 社群內容、公告、檢舉案例與目前線上會員資料均以部署資料庫為準，沒有再灌入舊版資料。
 
 ### db-v1.0.6 更新內容
 

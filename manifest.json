@@ -1,7 +1,11 @@
 {
-  "version": "db-v1.0.6",
+  "source": "Azure QMAH database after 2026-10-14 updates",
+  "purchaseTopupOrders": 846,
+  "backupSha256": "9adea6bd83a8a720dbb2749c60b28bd773076b22eb6b9083a3c5f02cb074244f",
+  "sourceApplicationCommit": "9d7462a5",
+  "pointExchangeCouponDefinitions": 22,
+  "version": "db-v1.0.10",
+  "tableCount": 62,
   "sourceRepository": "https://github.com/MSIT173-03/QMAH",
-  "generatedAt": "2026-10-12T08:00:00Z",
-  "sourceApplicationCommit": "b8f2027e",
-  "demoProductReviews": 2413
+  "generatedAt": "2026-10-13T21:23:57Z"
 }
