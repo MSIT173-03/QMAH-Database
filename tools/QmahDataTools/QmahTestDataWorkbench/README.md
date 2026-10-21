@@ -91,4 +91,4 @@ generate-showcase-data
 
 `NpmDataWorkbench` 是另一個 WPF 工作台，負責遠端 NPM 文物資料與商城來源的收集、預檢及匯入；本工作台負責已還原資料庫內的測試資料維護與關聯批次。兩者不合併，避免資料來源處理與資料庫狀態編輯互相干擾。
 
-完整命令、Snapshot、Schema 比對與 `.bak` Release 交付規則見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+完整命令見各工具資料夾內的說明。

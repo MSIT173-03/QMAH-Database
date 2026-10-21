@@ -1,6 +1,6 @@
 # QmahDatabaseRelease 工具說明
 
-[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Docs 專案](https://github.com/MSIT173-03/QMAH-Docs) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database) ｜ [QMAH-Docs 文件站](https://msit173-03.github.io/QMAH-Docs/)
+[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database)
 
 本頁列出 `QmahDatabaseRelease` 與 `Export-ReferenceDatabase.ps1` 的執行方式。工具輸出完整資料庫 Snapshot。
 
@@ -84,7 +84,6 @@ dotnet run --project .\tools\QmahDataTools\QmahDatabaseRelease\QmahDatabaseRelea
 
 活動與三種資產流水使用穩定識別碼與 `SHOWCASE_GENERATED` 標記，重跑時只更新本工具管理的資料。鑰匙種類從目前啟用的 `catalog.KeyDefinitions` 讀取；成就從啟用中的 `DAILY_LOGIN_COUNT`／`DAILY_LOGIN_STREAK` 定義與門檻讀取，登入歷史達標後才建立會員成就。`seed-showcase-users` 的少量固定成就分配只用於展示初始畫面，不能視為產品成就判定邏輯。
 
-網站的本機自動尋找規則請看[開發環境與啟動](https://msit173-03.github.io/QMAH-Docs/getting-started/development-environment.html)。
 
 ## 指定 Snapshot 位置與檔名
 
@@ -126,4 +125,3 @@ pwsh -File .\tools\QmahDataTools\Export-ReferenceDatabase.ps1 `
 4. LocalDB、`sqlcmd`、`sqllocaldb` 與 QMAH 編譯結果。
 5. pipeline 產物的 SQL、BAK、報告與 checksum 是否同源。
 
-完整資料工具責任與展示資料規則見 [QMAH-Docs 資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。

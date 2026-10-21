@@ -1,6 +1,6 @@
 # QMAH-Database 工具
 
-[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Docs 專案](https://github.com/MSIT173-03/QMAH-Docs) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database) ｜ [QMAH-Docs 文件站](https://msit173-03.github.io/QMAH-Docs/)
+[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database)
 
 本目錄包含建立、修改、驗證與交付 QMAH 測試資料所需的工具。工具可在只 clone `QMAH-Database` 的情況下建置；需要驗證網站啟動或把 NPM 文物資料匯入產品 Repository 時，再以參數指定 QMAH Repository 的位置。
 
