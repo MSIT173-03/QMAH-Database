@@ -1,8 +1,8 @@
 # QMAH 資料處理工具入口
 
-[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Docs 專案](https://github.com/MSIT173-03/QMAH-Docs) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database) ｜ [QMAH-Docs 文件站](https://msit173-03.github.io/QMAH-Docs/)
+[QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database)
 
-資料工具的責任、命令、展示資料邊界與 Snapshot Release 流程，見 [QMAH-Docs 的資料工具參考](https://msit173-03.github.io/QMAH-Docs/reference/data-tools.html)。
+資料工具的責任、命令、展示資料邊界與 Snapshot Release 流程。
 
 本檔只列出程式 Repository 內的工具入口，不在這裡重複維護操作手冊。
 
