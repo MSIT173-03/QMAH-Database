@@ -2,7 +2,7 @@
 
 [QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database)
 
-本目錄包含建立、修改、驗證與交付 QMAH 測試資料所需的工具。工具可在只 clone `QMAH-Database` 的情況下建置；需要驗證網站啟動或把 NPM 文物資料匯入產品 Repository 時，再以參數指定 QMAH Repository 的位置。
+本目錄包含建立、修改、驗證與交付 QMAH 測試資料所需的工具。工具可在只 clone `QMAH-Database` 的情況下建置。需要驗證網站啟動或把 NPM 文物資料匯入產品 Repository 時，再以參數指定 QMAH Repository 的位置。
 
 ## 工具分區
 
@@ -19,7 +19,7 @@
 | `Verify-SchemaParity.ps1` | 比對兩個 Repository 的 `Schema.sql` 並在不一致時警告 | 可選 |
 | `Sync-Schema.ps1` | 依明確指定的來源，將 `Schema.sql` 複製到另一個 Repository | 可選 |
 
-`QMAH.Infrastructure` 是資料庫專用工具的建置相依來源副本。產品程式仍以 QMAH Repository 的同名專案為準；這份副本讓資料庫工具可以獨立建置。
+`QMAH.Infrastructure` 是資料庫專用工具的建置相依來源副本。產品程式仍以 QMAH Repository 的同名專案為準。這份副本讓資料庫工具可以獨立建置。
 
 ## 只使用 QMAH-Database
 
@@ -54,7 +54,7 @@ dotnet run --project .\tools\QmahDataTools\QmahDatabaseRelease\QmahDatabaseRelea
   --seed 173
 ```
 
-流水工具讀取資料庫內的啟用鑰匙定義與登入成就定義；固定 seed 只控制展示資料的可重現分配，不取代產品服務中的條件判定。完整參數與重跑規則見各工具目錄的 README。
+流水工具讀取資料庫內的啟用鑰匙定義與登入成就定義。固定 seed 只控制展示資料的可重現分配，不取代產品服務中的條件判定。完整參數與重跑規則見各工具目錄的 README。
 
 命令只處理指定的本機資料庫，不會在網站啟動時自動建立資料庫、套用 Migration、執行 Seed 或覆寫資料。
 
@@ -82,7 +82,7 @@ dotnet run --project .\tools\QmahDataTools\QmahTestDataWorkbench\QmahTestDataWor
 
 ## Schema 比對與同步
 
-兩邊都保留 `database/Schema.sql`，方便各自 clone 後查看與使用。`QMAH-Database/database/Schema.sql` 是資料庫工具與 Snapshot 的預設基準；修改來源可依當次工作選擇，不能讓同步方向靠目前目錄猜測。
+兩邊都保留 `database/Schema.sql`，方便各自 clone 後查看與使用。`QMAH-Database/database/Schema.sql` 是資料庫工具與 Snapshot 的預設基準。修改來源可依當次工作選擇，不能讓同步方向靠目前目錄猜測。
 
 先檢查：
 
@@ -102,7 +102,7 @@ dotnet run --project .\tools\QmahDataTools\QmahTestDataWorkbench\QmahTestDataWor
 .\tools\Verify-SchemaParity.ps1 -QmahRepositoryPath '..\QMAH'
 ```
 
-`Sync-Schema.ps1` 只會覆寫另一個 Repository 的 `database/Schema.sql`；可先加 `-WhatIf` 查看目標。沒有指定來源時不執行同步。
+`Sync-Schema.ps1` 只會覆寫另一個 Repository 的 `database/Schema.sql`。可先加 `-WhatIf` 查看目標。沒有指定來源時不執行同步。
 
 同步腳本的回歸檢查使用臨時合成檔案，不接 SQL Server，也不修改真實 Schema：
 
@@ -112,6 +112,6 @@ pwsh -File tools/tests/Test-SchemaSync.ps1
 
 ## Snapshot 交付
 
-`Export-ReferenceDatabase.ps1` 會在隔離資料庫完成還原、資料掃描、`.bak` checksum、SQL 匯出、SQL 重建、資料比對與 Entity Framework 驗證後，將 SQL 寫到指定位置。`.bak` 不提交到 Git，正式交付時附加到 QMAH-Database 的 GitHub Release；Repository 內保留可審查的 `QMAH.sql`、`manifest.json` 與版本標籤。
+`Export-ReferenceDatabase.ps1` 會在隔離資料庫完成還原、資料掃描、`.bak` checksum、SQL 匯出、SQL 重建、資料比對與 Entity Framework 驗證後，將 SQL 寫到指定位置。`.bak` 不提交到 Git，正式交付時附加到 QMAH-Database 的 GitHub Release。Repository 內保留可審查的 `QMAH.sql`、`manifest.json` 與版本標籤。
 
 工具輸出預設放在工作區的 `_工具輸出\reference-database\<version>`。密碼、Token、連線字串中的秘密值、原始回應與本機資料庫檔案不得提交。

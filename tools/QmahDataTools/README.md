@@ -4,7 +4,7 @@
 
 資料工具的責任、命令、展示資料邊界與 Snapshot Release 流程。
 
-本檔列出資料庫 repo 內的工具入口；建置、Schema 同步與快照交付流程見 [工具總覽](../README.md)。
+本檔列出資料庫 repo 內的工具入口。建置、Schema 同步與快照交付流程見 [工具總覽](../README.md)。
 
 常用工具位於本目錄：
 
@@ -27,7 +27,7 @@
 dotnet run --project .\tools\QmahDataTools\QmahTestDataWorkbench\QmahTestDataWorkbench.csproj
 ```
 
-工作台啟動後會先保留畫面上的連線字串，再搜尋本機 SQL Server 中可連線且包含 `QMAH` 的資料庫。連線字串只是預設提示，不代表固定的 `.mdf` 路徑；自動尋找不掃描網路、不附加資料庫檔案，也不會自動還原 `.bak`。
+工作台啟動後會先保留畫面上的連線字串，再搜尋本機 SQL Server 中可連線且包含 `QMAH` 的資料庫。連線字串只是預設提示，不代表固定的 `.mdf` 路徑。自動尋找不掃描網路、不附加資料庫檔案，也不會自動還原 `.bak`。
 
 「範本／填寫帳密」可在沒有現成 credentials 檔案時直接載入 `QMAH.DemoCredentials.csv`，逐筆輸入 20 個展示帳號的測試密碼。預設本機檔與備份檔位於偵測到的 Repository 資料夾上一層，兩個 Repository 放在同一父資料夾時可以共用：
 
@@ -36,7 +36,7 @@ dotnet run --project .\tools\QmahDataTools\QmahTestDataWorkbench\QmahTestDataWor
 <Repository 的上一層>/QMAH.DemoCredentials.local.backup.csv
 ```
 
-密碼只寫入本機檔，範本保持空白且不覆寫；未填完時可以先儲存，`seed-showcase-users` 仍會在執行前指出未填帳號。
+密碼只寫入本機檔，範本保持空白且不覆寫。未填完時可以先儲存，`seed-showcase-users` 仍會在執行前指出未填帳號。
 
 「快速產生」使用兩個既有命令：
 
@@ -49,11 +49,11 @@ generate-showcase-data
 
 ### NpmDataWorkbench
 
-資料來源工作台位於 `NpmDataWorkbench`，負責遠端 NPM Open Data、商城來源收集、預檢及匯入。文物頁的 8 個正式分類可以各自輸入非負 Int32；先執行來源估算，再可把八類各自的原始來源筆數套用為目標。「套用 256 件基準」只代表目前 Snapshot 的參考批次。
+資料來源工作台位於 `NpmDataWorkbench`，負責遠端 NPM Open Data、商城來源收集、預檢及匯入。文物頁的 8 個正式分類可以各自輸入非負 Int32。先執行來源估算，再可把八類各自的原始來源筆數套用為目標。「套用 256 件基準」只代表目前 Snapshot 的參考批次。
 
-可自訂的文物收集項目包括每類數量、輸出資料夾、圖片根目錄、是否下載圖片、CSV／HTML 預覽、離線重整輸入，以及 Pipeline 執行檔位置。匯入區另有每類文物上限與商品上限，預設工作批次為 256 件，可依資料包調整；這不是發行快照的文物總量，也不會改變資料庫 Schema。
+可自訂的文物收集項目包括每類數量、輸出資料夾、圖片根目錄、是否下載圖片、CSV／HTML 預覽、離線重整輸入，以及 Pipeline 執行檔位置。匯入區另有每類文物上限與商品上限，預設工作批次為 256 件，可依資料包調整。這不是發行快照的文物總量，也不會改變資料庫 Schema。
 
-工作台啟動時會載入 `NpmDataWorkbench/presets/default-1-256.json` 的「預設 1」：八類各 32 件、`diverse`、seed `173`、每類文物匯入上限 32、商品上限 256。按「載入預設 1」即可恢復。預設檔不保存路徑、連線字串、credentials 或其他機密；兩個 Repository 的共用預設檔應維持一致，詳細欄位見 [預設檔說明](NpmDataWorkbench/presets/README.md)。
+工作台啟動時會載入 `NpmDataWorkbench/presets/default-1-256.json` 的「預設 1」：八類各 32 件、`diverse`、seed `173`、每類文物匯入上限 32、商品上限 256。按「載入預設 1」即可恢復。預設檔不保存路徑、連線字串、credentials 或其他機密。兩個 Repository 的共用預設檔應維持一致，詳細欄位見 [預設檔說明](NpmDataWorkbench/presets/README.md)。
 
 商城頁則可調整來源分類、目標商品數、每次請求延遲、週期性冷卻、最大頁數、圖片下載與預覽格式。遠端來源大量收集前應先使用估算功能，並檢查輸出目錄中的 `quality-report.json` 與 `manifest.json`。
 
