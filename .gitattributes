@@ -1,0 +1,2 @@
+# Keep schema parity checks stable on Windows and Linux.
+/database/Schema.sql text eol=lf

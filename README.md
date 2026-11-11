@@ -32,7 +32,7 @@ Get-FileHash .\QMAH-1.0.10.bak -Algorithm SHA256
 | 路徑 | 說明 |
 | --- | --- |
 | `QMAH.sql` | 版控內的工作腳本；重現發行快照請以 Release 資產及其校驗值為準 |
-| `database/Schema.sql` | 本 repo 的結構基準；與主專案的差異需另行比對，不自動覆蓋 |
+| `database/Schema.sql` | 與主專案同步的 62 張表結構參考；不在網站啟動時自動執行 |
 | `database/upgrades/`、`database/seeds/` | 版本升級與展示資料腳本 |
 | `manifest.json` | 快照版本、來源與備份檔 SHA-256 |
 | `tools/QmahDataTools/` | 資料匯入、快照匯出與驗證工具 |
@@ -56,7 +56,9 @@ dotnet build .\QMAH.DatabaseTools.sln -c Release --no-restore
 
 ### Schema 同步
 
-2026-11-11 核對時，兩個 repo 的 `Schema.sql` 並不相同，忽略行尾差異後仍有差異。本輪沒有檢視或覆寫 SQL 內容，也沒有驗證其語義相容性。
+2026-11-11 已以主專案 [main 提交 e49cd5b5](https://github.com/MSIT173-03/QMAH/blob/e49cd5b55cbfae1de962e23e3a4f9be53fdeb1c5/database/Schema.sql) 為來源同步本檔，兩份 `Schema.sql` 的 SHA-256 一致。兩邊均固定此檔使用 LF，避免 Windows 換行轉換造成假的差異。
+
+補齊的是原參考檔缺少的 `PostBookmarks`、`DirectMessages`、`AiReviewRuntimeStatus`、`AiReviewLogs`，以及 `ContentModerationSettings.AiReviewEnabled` 和配套索引／約束。完整 `QMAH.sql` 已含這些結構，因此沒有重匯出資料、重建備份或增加資料庫版本。這不代表本輪重新驗證過 `.bak` 的還原結果。
 
 `Verify-SchemaParity.ps1` 只提出警告，即使不同也回傳成功；不能將 exit code 0 當成 Schema 相同。若確定要同步，`Sync-Schema.ps1` 必須明確指定 `-Source`，先加 `-WhatIf` 檢視目標，確認後再執行。一般還原快照不需要執行這兩個工具。
 
@@ -75,6 +77,7 @@ dotnet build .\QMAH.DatabaseTools.sln -c Release --no-restore
 - 整理展示結束、還原與版本說明，修正已移除舊 Release 的連結。
 - 資料工具明確引用已修補的 `System.Security.Cryptography.Pkcs 10.0.13`，取代有已知弱點的間接 9.0.11。通報：[高風險](https://github.com/advisories/GHSA-846f-f764-76mx)、[中度風險](https://github.com/advisories/GHSA-2fmv-rv2c-59x7)。
 - Schema 同步改為必須指定來源，避免省略參數時覆寫另一個 repo。
+- 補齊落後的獨立 Schema 參考檔並核對與主專案一致，保留原完整 SQL、備份、tag 與下載網址。
 - 8 個專案的直接與間接 NuGet 依賴稽核未發現已知弱點；solution Release 建置通過，0 警告、0 錯誤。`pwsh -File tools/tests/Test-SchemaSync.ps1` 的四個合成檔案情境通過，不連接資料庫。
 - 沒有修改快照、升級／種子腳本或 `manifest.json`；沒有連接 SQL Server 或 Azure。歷史 Release 所附 Source code 對應當時提交，維護工具請使用目前 main。
 
