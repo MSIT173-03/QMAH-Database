@@ -17,14 +17,14 @@
 
 ## 執行前條件
 
-- 工作目錄位於 QMAH Repository；`.NET 10`、`sqlcmd`、`sqllocaldb` 與可編譯的 QMAH solution 已可使用。
+- 工作目錄位於 QMAH Repository。`.NET 10`、`sqlcmd`、`sqllocaldb` 與可編譯的 QMAH solution 已可使用。
 - 輸入資料庫是隔離的本機資料庫，不是正式或共用環境。
 - 根目錄的 credentials 檔案只存在本機，密碼欄位不留白，也不提交到 Git。
 - Snapshot 目標資料夾已存在，且輸出檔案的覆寫範圍已確認。
 
 ## 最短可重跑流程
 
-下列命令示範執行順序；帳號、密碼與資料量依本機設定和當次需求決定：
+下列命令示範執行順序。帳號、密碼與資料量依本機設定和當次需求決定：
 
 ```powershell
 $connection = "Server=(localdb)\MSSQLLocalDB;Database=QMAH;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=False"
@@ -57,9 +57,9 @@ pwsh -File .\tools\QmahDataTools\Export-ReferenceDatabase.ps1 -Version 0.7.1
 
 `generate-showcase-data` 會在同一個資料庫交易中產生社群／商城關聯資料，以及每日登入／簽到、點數、鑰匙、鑰匙進度與符合登入條件的成就。各項資料量可分別指定：
 
-如果資料庫目前有啟用且尚未結束的 `CouponDefinitions`，工具會把前幾筆優惠券條件轉成 `SocialPosts` 的 `ANNOUNCEMENT`／`OFFICIAL` 商城優惠活動，使用 `STORE` 看板。商城的 `/api/v1/store/promotions` 直接讀這些公告的標題、本文與發布日期，因此社群公告與商城展示不會各自維護一份文案；真正折抵仍由結帳流程重新驗證優惠券定義。
+如果資料庫目前有啟用且尚未結束的 `CouponDefinitions`，工具會把前幾筆優惠券條件轉成 `SocialPosts` 的 `ANNOUNCEMENT`／`OFFICIAL` 商城優惠活動，使用 `STORE` 看板。商城的 `/api/v1/store/promotions` 直接讀這些公告的標題、本文與發布日期，因此社群公告與商城展示不會各自維護一份文案。真正折抵仍由結帳流程重新驗證優惠券定義。
 
-社群展示文章會由 `ShowcaseDataCommands` 依固定素材產生。產生前會排除評審、前台、資料表與批次工具等內部檢討句；產生後會去掉展示用框選引號，並讓留言回應文章中的具體觀察。這些清理只作用於展示貼文與評論，不改動圖鑑內的原始名稱與原始說明。重跑本版後 `social.SocialPosts=314`、`social.SocialComments=728`。
+社群展示文章會由 `ShowcaseDataCommands` 依固定素材產生。產生前會排除評審、前台、資料表與批次工具等內部檢討句。產生後會去掉展示用框選引號，並讓留言回應文章中的具體觀察。這些清理只作用於展示貼文與評論，不改動圖鑑內的原始名稱與原始說明。重跑本版後 `social.SocialPosts=314`、`social.SocialComments=728`。
 
 ```text
 --activity-days <0-3650>
@@ -82,7 +82,7 @@ dotnet run --project .\tools\QmahDataTools\QmahDatabaseRelease\QmahDatabaseRelea
   --seed 173
 ```
 
-活動與三種資產流水使用穩定識別碼與 `SHOWCASE_GENERATED` 標記，重跑時只更新本工具管理的資料。鑰匙種類從目前啟用的 `catalog.KeyDefinitions` 讀取；成就從啟用中的 `DAILY_LOGIN_COUNT`／`DAILY_LOGIN_STREAK` 定義與門檻讀取，登入歷史達標後才建立會員成就。`seed-showcase-users` 的少量固定成就分配只用於展示初始畫面，不能視為產品成就判定邏輯。
+活動與三種資產流水使用穩定識別碼與 `SHOWCASE_GENERATED` 標記，重跑時只更新本工具管理的資料。鑰匙種類從目前啟用的 `catalog.KeyDefinitions` 讀取。成就從啟用中的 `DAILY_LOGIN_COUNT`／`DAILY_LOGIN_STREAK` 定義與門檻讀取，登入歷史達標後才建立會員成就。`seed-showcase-users` 的少量固定成就分配只用於展示初始畫面，不能視為產品成就判定邏輯。
 
 
 ## 指定 Snapshot 位置與檔名
