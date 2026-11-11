@@ -167,16 +167,57 @@ BEGIN TRANSACTION;
         CONSTRAINT [CK_ContentKeywords_Action] CHECK (([Action]=N'BLOCK' OR [Action]=N'FLAG'))
     );
 
+    CREATE TABLE [social].[PostBookmarks] (
+        [UserId] uniqueidentifier NOT NULL,
+        [PostId] uniqueidentifier NOT NULL,
+        [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_PostBookmarks_Created] DEFAULT ((sysutcdatetime())),
+        CONSTRAINT [PK_PostBookmarks] PRIMARY KEY ([UserId], [PostId])
+    );
+
+    CREATE TABLE [social].[DirectMessages] (
+        [Id] uniqueidentifier NOT NULL,
+        [SenderUserId] uniqueidentifier NOT NULL,
+        [RecipientUserId] uniqueidentifier NOT NULL,
+        [Content] nvarchar(1000) NOT NULL,
+        [CreatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_DirectMessages_Created] DEFAULT ((sysutcdatetime())),
+        [ReadAt] datetime2(3) NULL,
+        CONSTRAINT [PK_DirectMessages] PRIMARY KEY ([Id]),
+        CONSTRAINT [CK_DirectMessages_NotSelf] CHECK (([SenderUserId]<>[RecipientUserId]))
+    );
+
     CREATE TABLE [social].[ContentModerationSettings] (
         [Id] tinyint NOT NULL,
         [SimHashWindowDays] int NOT NULL CONSTRAINT [DF_ContentModerationSettings_WindowDays] DEFAULT ((7)),
         [SimHashHammingThreshold] int NOT NULL CONSTRAINT [DF_ContentModerationSettings_HammingThreshold] DEFAULT ((8)),
+        [AiReviewEnabled] bit NOT NULL CONSTRAINT [DF_ContentModerationSettings_AiReviewEnabled] DEFAULT ((1)),
         [UpdatedByUserId] uniqueidentifier NULL,
         [UpdatedAt] datetime2(3) NOT NULL CONSTRAINT [DF_ContentModerationSettings_Updated] DEFAULT ((sysutcdatetime())),
         [RowVersion] rowversion NOT NULL,
         CONSTRAINT [PK_ContentModerationSettings] PRIMARY KEY ([Id]),
         CONSTRAINT [CK_ContentModerationSettings_Values] CHECK (([SimHashWindowDays] BETWEEN 1 AND 90 AND [SimHashHammingThreshold] BETWEEN 0 AND 64))
     );
+
+    CREATE TABLE [social].[AiReviewRuntimeStatus] (
+        [Id] tinyint NOT NULL,
+        [Provider] nvarchar(40) NULL,
+        [HeartbeatAt] datetime2(3) NOT NULL CONSTRAINT [DF_AiReviewRuntimeStatus_Heartbeat] DEFAULT ((sysutcdatetime())),
+        CONSTRAINT [PK_AiReviewRuntimeStatus] PRIMARY KEY ([Id])
+    );
+
+    CREATE TABLE [social].[AiReviewLogs] (
+        [Id] bigint IDENTITY(1,1) NOT NULL,
+        [ReviewedAt] datetime2(3) NOT NULL CONSTRAINT [DF_AiReviewLogs_ReviewedAt] DEFAULT ((sysutcdatetime())),
+        [TargetType] nvarchar(10) NOT NULL,
+        [TargetId] uniqueidentifier NOT NULL,
+        [Provider] nvarchar(40) NOT NULL,
+        [Flagged] bit NOT NULL,
+        [AutoHidden] bit NOT NULL,
+        [Category] nvarchar(60) NULL,
+        [Score] float NULL,
+        [Summary] nvarchar(400) NULL,
+        CONSTRAINT [PK_AiReviewLogs] PRIMARY KEY ([Id])
+    );
+    CREATE INDEX [IX_AiReviewLogs_ReviewedAt] ON [social].[AiReviewLogs] ([ReviewedAt] DESC);
 
     CREATE TABLE [store].[CouponDefinitions] (
         [Id] uniqueidentifier NOT NULL,
@@ -1122,6 +1163,18 @@ BEGIN TRANSACTION;
     ALTER TABLE [social].[ContentKeywords] ADD CONSTRAINT [FK_ContentKeywords_CreatedByUser]
         FOREIGN KEY ([CreatedByUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
 
+    ALTER TABLE [social].[PostBookmarks] ADD CONSTRAINT [FK_PostBookmarks_Post]
+        FOREIGN KEY ([PostId]) REFERENCES [social].[SocialPosts] ([Id]) ON DELETE CASCADE;
+
+    ALTER TABLE [social].[PostBookmarks] ADD CONSTRAINT [FK_PostBookmarks_User]
+        FOREIGN KEY ([UserId]) REFERENCES [user].[AspNetUsers] ([Id]) ON DELETE CASCADE;
+
+    ALTER TABLE [social].[DirectMessages] ADD CONSTRAINT [FK_DirectMessages_Sender]
+        FOREIGN KEY ([SenderUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
+
+    ALTER TABLE [social].[DirectMessages] ADD CONSTRAINT [FK_DirectMessages_Recipient]
+        FOREIGN KEY ([RecipientUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
+
     ALTER TABLE [social].[ContentModerationSettings] ADD CONSTRAINT [FK_ContentModerationSettings_UpdatedByUser]
         FOREIGN KEY ([UpdatedByUserId]) REFERENCES [user].[AspNetUsers] ([Id]);
 
@@ -1232,6 +1285,12 @@ BEGIN TRANSACTION;
     CREATE INDEX [IX_ContentReports_ReporterUserId] ON [social].[ContentReports] ([ReporterUserId]);
 
     CREATE INDEX [IX_ContentReports_ReviewedByUserId] ON [social].[ContentReports] ([ReviewedByUserId]);
+
+    CREATE INDEX [IX_PostBookmarks_Post] ON [social].[PostBookmarks] ([PostId]);
+
+    CREATE INDEX [IX_DirectMessages_Pair] ON [social].[DirectMessages] ([SenderUserId], [RecipientUserId], [CreatedAt] DESC);
+
+    CREATE INDEX [IX_DirectMessages_Inbox] ON [social].[DirectMessages] ([RecipientUserId], [ReadAt], [CreatedAt] DESC);
 
     CREATE INDEX [IX_ContentKeywords_IsActive] ON [social].[ContentKeywords] ([IsActive]);
 
