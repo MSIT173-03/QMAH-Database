@@ -1,7 +1,8 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
+    [Parameter(Mandatory)]
     [ValidateSet("QMAH", "QMAH-Database")]
-    [string]$Source = "QMAH-Database",
+    [string]$Source,
 
     [string]$QmahRepositoryPath,
     [string]$DatabaseRepositoryPath
