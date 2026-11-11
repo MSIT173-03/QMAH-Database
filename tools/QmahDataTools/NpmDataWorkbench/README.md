@@ -4,15 +4,15 @@ Windows WPF GUI，提供文物 Pipeline、商城 Collector 與安全 Importer �
 
 本工作台用於資料估算、收集、預檢與正式匯入。
 
-一般網站開發不需要開啟本工具或執行資料匯入命令。建立開發資料庫時，可在 SSMS 執行 [QMAH-Database db-v0.7.0 Release 的完整 Snapshot](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0)；若另有同版本且已驗證的 `.bak`，也可以使用。兩種方式擇一即可。
+一般網站開發不需要開啟本工具或執行資料匯入命令。建立開發資料庫時，使用 [QMAH-Database db-v1.0.10](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.10) 的 `.bak` 或完整 SQL，先核對同版 `SHA256SUMS.txt`。兩種方式擇一，不在既有資料上疊加。
 
-可直接執行的版本位於工作區根目錄 `_工具輸出/portable-tools/NpmDataWorkbench.exe`。
+此 repo 不提供可下載的 EXE；請依 [工具總覽](../../README.md) 從原始碼建置，不假設本機已有舊的 portable-tools 輸出。
 
 文物頁固定顯示 8 類：銅器、陶瓷、玉器、琺瑯器、漆器、錢幣、雕刻、繪畫。
 
 匯入區預設沿用目前完整資料包的基準：文物每類 32 筆、商品最多 256 筆。這些是預檢與批次篩選的預設值，不是來源或資料庫上限。文物收集頁的 8 類目標可輸入非負 Int32；按「偵測 API 筆數」後，還能把八類各自的原始來源筆數套用為目標。實際輸出仍受可用欄位、圖片下載、授權與年代規則影響。
 
-「套用 256 件基準」代表 8 類各 32 件，只用於重現目前參考 Snapshot。「套用來源可用上限」使用最近一次估算的 `available` 原始筆數；`question-ready` 候選筆數與最後品質報告才代表可直接進入題庫的數量。
+「套用 256 件基準」代表 8 類各 32 件，只用於重現預設工作批次，不代表發行快照的文物總量。「套用來源可用上限」使用最近一次估算的 `available` 原始筆數；`question-ready` 候選筆數與最後品質報告才代表可直接進入題庫的數量。
 
 文物收集提供三種選取模式：
 

@@ -4,7 +4,7 @@
 
 資料工具的責任、命令、展示資料邊界與 Snapshot Release 流程。
 
-本檔只列出程式 Repository 內的工具入口，不在這裡重複維護操作手冊。
+本檔列出資料庫 repo 內的工具入口；建置、Schema 同步與快照交付流程見 [工具總覽](../README.md)。
 
 常用工具位於本目錄：
 
@@ -15,7 +15,7 @@
 - `QmahTestDataWorkbench`：連線本機 QMAH、編輯受控文物／商品資料、填寫展示帳密與產生關聯展示資料。
 - `Export-ReferenceDatabase.ps1`：單一 Snapshot pipeline。
 
-流程與參數說明見 [QmahDatabaseRelease 工具說明](QmahDatabaseRelease/README.md) 與 [QmahTestDataWorkbench 工作台說明](QmahTestDataWorkbench/README.md)。完整 `QMAH.sql` 與 `.bak` 由 [QMAH-Database db-v0.7.0 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v0.7.0) 提供。
+流程與參數說明見 [QmahDatabaseRelease 工具說明](QmahDatabaseRelease/README.md) 與 [QmahTestDataWorkbench 工作台說明](QmahTestDataWorkbench/README.md)。完整 SQL 與 `.bak` 快照由 [QMAH-Database db-v1.0.10 Release](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.10) 提供，使用前核對同版 `SHA256SUMS.txt`。
 
 ## 兩個 WPF 工作台
 
@@ -51,7 +51,7 @@ generate-showcase-data
 
 資料來源工作台位於 `NpmDataWorkbench`，負責遠端 NPM Open Data、商城來源收集、預檢及匯入。文物頁的 8 個正式分類可以各自輸入非負 Int32；先執行來源估算，再可把八類各自的原始來源筆數套用為目標。「套用 256 件基準」只代表目前 Snapshot 的參考批次。
 
-可自訂的文物收集項目包括每類數量、輸出資料夾、圖片根目錄、是否下載圖片、CSV／HTML 預覽、離線重整輸入，以及 Pipeline 執行檔位置。匯入區另有每類文物上限與商品上限，預設值仍對應目前 256 件參考資料包，但可依資料包調整，不會改變資料庫 Schema。
+可自訂的文物收集項目包括每類數量、輸出資料夾、圖片根目錄、是否下載圖片、CSV／HTML 預覽、離線重整輸入，以及 Pipeline 執行檔位置。匯入區另有每類文物上限與商品上限，預設工作批次為 256 件，可依資料包調整；這不是發行快照的文物總量，也不會改變資料庫 Schema。
 
 工作台啟動時會載入 `NpmDataWorkbench/presets/default-1-256.json` 的「預設 1」：八類各 32 件、`diverse`、seed `173`、每類文物匯入上限 32、商品上限 256。按「載入預設 1」即可恢復。預設檔不保存路徑、連線字串、credentials 或其他機密；兩個 Repository 的共用預設檔應維持一致，詳細欄位見 [預設檔說明](NpmDataWorkbench/presets/README.md)。
 

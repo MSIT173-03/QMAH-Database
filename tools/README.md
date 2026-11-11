@@ -26,8 +26,8 @@
 從本 Repository 根目錄執行：
 
 ```powershell
-dotnet restore .\QMAH.DatabaseTools.sln
-dotnet build .\QMAH.DatabaseTools.sln -c Release
+dotnet restore .\QMAH.DatabaseTools.sln --locked-mode
+dotnet build .\QMAH.DatabaseTools.sln -c Release --no-restore
 
 dotnet run --project .\tools\QmahDataTools\ArtifactProductGenerator\ArtifactProductGenerator.csproj -- --help
 dotnet run --project .\tools\QmahDataTools\QmahDatabaseRelease\QmahDatabaseRelease.csproj -- --help
@@ -103,6 +103,12 @@ dotnet run --project .\tools\QmahDataTools\QmahTestDataWorkbench\QmahTestDataWor
 ```
 
 `Sync-Schema.ps1` 只會覆寫另一個 Repository 的 `database/Schema.sql`；可先加 `-WhatIf` 查看目標。沒有指定來源時不執行同步。
+
+同步腳本的回歸檢查使用臨時合成檔案，不接 SQL Server，也不修改真實 Schema：
+
+```powershell
+pwsh -File tools/tests/Test-SchemaSync.ps1
+```
 
 ## Snapshot 交付
 
