@@ -4,7 +4,7 @@
 
 > Azure 一個月免費展示已結束。本 repo 保留展示快照與本地資料工具，不提供線上資料庫，也不需要重新啟動 Azure。
 
-目前快照：[db-v1.0.10](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.10)。主專案 [v1.1.1](https://github.com/MSIT173-03/QMAH/releases/tag/v1.1.1) 沿用這個下載版本，本輪維護沒有建立新快照或升版資料庫。其他版本的相容性需另行確認。
+目前快照：[db-v1.0.10](https://github.com/MSIT173-03/QMAH-Database/releases/tag/db-v1.0.10)。主專案 [v1.1.1](https://github.com/MSIT173-03/QMAH/releases/tag/v1.1.1) 沿用這個下載版本，2026-11-11 的維護沒有建立新快照或升版資料庫。其他版本的相容性需另行確認。
 
 ## 還原資料庫
 
