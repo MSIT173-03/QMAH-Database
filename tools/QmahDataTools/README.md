@@ -2,8 +2,6 @@
 
 [QMAH 專案](https://github.com/MSIT173-03/QMAH) ｜ [QMAH-Database 專案](https://github.com/MSIT173-03/QMAH-Database)
 
-資料工具的責任、命令、展示資料邊界與 Snapshot Release 流程。
-
 本檔列出資料庫 repo 內的工具入口。建置、Schema 同步與快照交付流程見 [工具總覽](../README.md)。
 
 常用工具位於本目錄：
